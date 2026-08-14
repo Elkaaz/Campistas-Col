@@ -120,3 +120,8 @@
   .navbar-logo      { height: 36px; }
   .user-level-badge { display: none; }
 }
+
+.user-avatar-img {
+  width: 24px; height: 24px; border-radius: 50%; object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.6);
+}

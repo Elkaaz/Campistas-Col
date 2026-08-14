@@ -12,7 +12,7 @@ export function getLevelColor(nivel: NivelActual): string {
  * Obtiene el color secundario de un nivel
  */
 export function getLevelSecondaryColor(nivel: NivelActual): string {
-  return LEVELS[nivel]?.colorSecondario || '#CCCCCC'
+  return LEVELS[nivel]?.colorSecundario || '#CCCCCC'
 }
 
 /**

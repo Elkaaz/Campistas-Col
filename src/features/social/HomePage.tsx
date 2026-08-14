@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PostCard from '../../components/cards/PostCard'
 import { RETO_TYPES } from '../../lib/constants'
-import { Post, RetoTipo } from '../../types'
+import { Post, RetoTipo, InteractionTipo } from '../../types'
 import { postsService, interactionsService } from '../../services'
+import { useAuth } from '../../context/AuthContext'
 import '../../styles/pages.css'
 
 // Fotos reales de campistas para el empty state / hero
@@ -14,6 +15,7 @@ const HERO_PHOTOS = [
 ]
 
 export default function HomePage() {
+  const { profile }                     = useAuth()
   const [posts, setPosts]               = useState<Post[]>([])
   const [selectedFilter, setFilter]     = useState<RetoTipo | 'todos'>('todos')
   const [loading, setLoading]           = useState(true)
@@ -42,14 +44,23 @@ export default function HomePage() {
     setPosts(data)
   }
 
-  const handleFogata = async (postId: string) => {
-    try { await interactionsService.addInteraction('user_current','Usuario','',postId,'fogata'); await reload() }
-    catch (e) { console.error(e) }
+  const toggleReaction = async (postId: string, tipo: InteractionTipo) => {
+    if (!profile) return
+    try {
+      const alreadyReacted = await interactionsService.hasUserReacted(profile.uid, postId, tipo)
+      if (alreadyReacted) {
+        await interactionsService.removeInteraction(profile.uid, postId, tipo)
+      } else {
+        await interactionsService.addInteraction(
+          profile.uid, profile.displayName, profile.avatar, postId, tipo,
+        )
+      }
+      await reload()
+    } catch (e) { console.error(e) }
   }
-  const handleNudo = async (postId: string) => {
-    try { await interactionsService.addInteraction('user_current','Usuario','',postId,'nudo'); await reload() }
-    catch (e) { console.error(e) }
-  }
+
+  const handleFogata = (postId: string) => toggleReaction(postId, 'fogata')
+  const handleNudo   = (postId: string) => toggleReaction(postId, 'nudo')
 
   return (
     <div className="home-page">

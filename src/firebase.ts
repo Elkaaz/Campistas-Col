@@ -13,9 +13,25 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || '',
 }
 
-const hasFirebaseConfig = Object.values(firebaseConfig).every(Boolean)
+// measurementId es opcional (solo se usa con Analytics)
+const REQUIRED_KEYS = [
+  'apiKey',
+  'authDomain',
+  'projectId',
+  'storageBucket',
+  'messagingSenderId',
+  'appId',
+] as const
+
+const hasFirebaseConfig = REQUIRED_KEYS.every((key) => Boolean(firebaseConfig[key]))
 
 export const firebaseReady = hasFirebaseConfig
+
+/**
+ * Modo demo: la app corre con datos de demostración en memoria.
+ * Se activa automáticamente cuando no hay credenciales de Firebase.
+ */
+export const demoMode = !hasFirebaseConfig
 
 export const app = hasFirebaseConfig ? getApps().length ? getApp() : initializeApp(firebaseConfig) : null
 export const auth = app ? getAuth(app) : null

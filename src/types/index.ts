@@ -2,6 +2,7 @@
 // Exportamos todo desde aquí para facilitar imports
 
 export * from './user'
+export * from './campista'
 export * from './post'
 export * from './interaction'
 export * from './cartilla'

@@ -83,10 +83,9 @@ export const RETO_TYPES = {
 export const NAV_ITEMS = [
   { label: 'El Fogón 🔥', to: '/', icon: '🔥' },
   { label: 'Mi Bosque 🌳', to: '/bosque', icon: '🌳' },
-  { label: 'Mi Aprendizaje 📚', to: '/cartillas', icon: '📚' },
   { label: 'Retos ⛰️', to: '/retos', icon: '⛰️' },
-  { label: 'Niveles 🎖️', to: '/niveles', icon: '🎖️' },
   { label: 'Leaderboard 🏆', to: '/leaderboard', icon: '🏆' },
+  { label: 'Mi Perfil 🏕️', to: '/mi-perfil', icon: '🏕️' },
 ] as const
 
 // HABILIDADES ESPECIALES

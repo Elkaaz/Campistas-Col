@@ -1,6 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { postsService } from '../../services'
+import { getRetosCatalogo } from '../../services/catalogService'
+import { uploadImages } from '../../services/imageService'
+import { useAuth } from '../../context/AuthContext'
+import { LEVELS } from '../../lib/constants'
+import type { Reto } from '../../types'
 import '../../styles/pages.css'
 
 /**
@@ -10,6 +15,14 @@ import '../../styles/pages.css'
 export default function PublicarRetoPage() {
   const { id: retoId } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { profile } = useAuth()
+  const [reto, setReto] = useState<Reto | null>(null)
+
+  useEffect(() => {
+    getRetosCatalogo().then((retos) => {
+      setReto(retos.find((item) => item.retoId === retoId) ?? null)
+    })
+  }, [retoId])
 
   const [titulo, setTitulo] = useState('')
   const [descripcion, setDescripcion] = useState('')
@@ -35,42 +48,30 @@ export default function PublicarRetoPage() {
     setError(null)
 
     try {
-      // TODO: En producción, subir archivos a Cloud Storage y obtener URLs
-      // Por ahora usar placeholders
-      const imageUrls = imagenes.map((_, idx) => `https://via.placeholder.com/400x300?text=Imagen${idx + 1}`)
+      if (!profile) throw new Error('Debes iniciar sesión para publicar un reto')
 
-      // TODO: Obtener UID y datos del usuario autenticado
-      const uid = 'user_temp'
-      const displayName = 'Usuario Temporal'
-      const avatar = 'https://via.placeholder.com/48'
-      const nivel = 'Semilla'
-      const nivelColor = '#8B7355'
-      const municipio = 'Medellín'
-      const departamento = 'Antioquia'
+      const imageUrls = await uploadImages(imagenes)
+      const nivel = LEVELS[profile.nivelActual]
 
-      // Crear post en Firebase
-      const postId = await postsService.createPost(
-        uid,
-        displayName,
-        avatar,
-        nivel,
-        nivelColor,
+      await postsService.createPost(
+        profile.uid,
+        profile.displayName,
+        profile.avatar,
+        nivel.nombre,
+        nivel.color,
         {
-          retoId: retoId || 'reto_default',
-          retoTitulo: 'Reto',
-          retoTipo: 'fogata',
+          retoId: reto?.retoId || retoId || 'reto_default',
+          retoTitulo: reto?.titulo || 'Reto',
+          retoTipo: reto?.tipo || 'fogata',
           titulo,
           descripcion,
           imagenes: imageUrls,
-          xpAsignado: 80,
+          xpAsignado: reto?.xpRecompensa ?? 80,
         },
-        municipio,
-        departamento
+        profile.municipio,
+        profile.departamento
       )
 
-      // Éxito
-      alert('✅ Reto publicado exitosamente. Pendiente de validación por líder.')
-      console.log('Post creado:', postId)
       navigate('/')
     } catch (err) {
       console.error('Error publishing post:', err)
@@ -85,7 +86,9 @@ export default function PublicarRetoPage() {
       {/* HEADER */}
       <div className="page-header">
         <h1>📸 Publicar Reto Completado</h1>
-        <p className="page-subtitle">Comparte tu evidencia y gana XP</p>
+        <p className="page-subtitle">
+          {reto ? `${reto.titulo} · +${reto.xpRecompensa} XP` : 'Comparte tu evidencia y gana XP'}
+        </p>
       </div>
 
       {/* FORM */}

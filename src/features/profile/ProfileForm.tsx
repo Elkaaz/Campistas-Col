@@ -11,6 +11,7 @@ export default function ProfileForm() {
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
+    if (!auth) return
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser)
     })
@@ -31,6 +32,19 @@ export default function ProfileForm() {
     },
     bio: 'Campista motivado por el liderazgo y la convivencia.',
   })
+
+  function updateContacto(field: 'nombre' | 'telefono' | 'parentesco', value: string) {
+    setForm((prev) => ({
+      ...prev,
+      contactoEmergencia: {
+        nombre: '',
+        telefono: '',
+        parentesco: '',
+        ...prev.contactoEmergencia,
+        [field]: value,
+      },
+    }))
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -114,12 +128,7 @@ export default function ProfileForm() {
         Contacto emergencia
         <input
           value={form.contactoEmergencia?.nombre || ''}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              contactoEmergencia: { ...form.contactoEmergencia, nombre: e.target.value },
-            })
-          }
+          onChange={(e) => updateContacto('nombre', e.target.value)}
         />
       </label>
 
@@ -127,12 +136,7 @@ export default function ProfileForm() {
         Teléfono de emergencia
         <input
           value={form.contactoEmergencia?.telefono || ''}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              contactoEmergencia: { ...form.contactoEmergencia, telefono: e.target.value },
-            })
-          }
+          onChange={(e) => updateContacto('telefono', e.target.value)}
         />
       </label>
 
@@ -140,12 +144,7 @@ export default function ProfileForm() {
         Parentesco
         <input
           value={form.contactoEmergencia?.parentesco || ''}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              contactoEmergencia: { ...form.contactoEmergencia, parentesco: e.target.value },
-            })
-          }
+          onChange={(e) => updateContacto('parentesco', e.target.value)}
         />
       </label>
 

@@ -1,4 +1,5 @@
-export type RetoTipo = 'nudo' | 'refugio' | 'fogata' | 'huerta' | 'primeros_auxilios'
+import type { RetoTipo } from './post'
+
 export type RetoEstado = 'activo' | 'inactivo' | 'archivado'
 
 export interface Reto {

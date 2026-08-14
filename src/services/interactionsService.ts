@@ -11,6 +11,7 @@ import {
   increment,
 } from 'firebase/firestore'
 import { db } from '../firebase'
+import { demoStore } from '../data/demoStore'
 import { Interaction, InteractionTipo } from '../types'
 
 /**
@@ -27,6 +28,13 @@ export const interactionsService = {
     postId: string,
     tipo: InteractionTipo
   ): Promise<void> {
+    if (!db) {
+      if (!demoStore.hasInteraction(uid, postId, tipo)) {
+        demoStore.toggleInteraction(uid, usuarioNombre, postId, tipo)
+      }
+      return
+    }
+
     try {
       // Verificar si ya existe esta interacción
       const q = query(
@@ -69,6 +77,13 @@ export const interactionsService = {
     postId: string,
     tipo: InteractionTipo
   ): Promise<void> {
+    if (!db) {
+      if (demoStore.hasInteraction(uid, postId, tipo)) {
+        demoStore.toggleInteraction(uid, '', postId, tipo)
+      }
+      return
+    }
+
     try {
       // Encontrar y eliminar la interacción
       const q = query(
@@ -99,6 +114,8 @@ export const interactionsService = {
    * Obtener todas las interacciones de un usuario
    */
   async getUserInteractions(uid: string): Promise<Interaction[]> {
+    if (!db) return demoStore.getPosts().flatMap((post) => demoStore.getInteractions(post.postId)).filter((interaction) => interaction.uid === uid)
+
     try {
       const q = query(
         collection(db, 'interactions'),
@@ -120,6 +137,8 @@ export const interactionsService = {
    * Obtener interacciones de un post
    */
   async getPostInteractions(postId: string): Promise<Interaction[]> {
+    if (!db) return demoStore.getInteractions(postId)
+
     try {
       const q = query(
         collection(db, 'interactions'),
@@ -145,6 +164,8 @@ export const interactionsService = {
     postId: string,
     tipo: InteractionTipo
   ): Promise<boolean> {
+    if (!db) return demoStore.hasInteraction(uid, postId, tipo)
+
     try {
       const q = query(
         collection(db, 'interactions'),
