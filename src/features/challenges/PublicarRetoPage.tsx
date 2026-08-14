@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import { LEVELS } from '../../lib/constants'
 import type { Reto } from '../../types'
 import '../../styles/pages.css'
+import '../../styles/forms.css'
 
 /**
  * PublicarRetoPage - Formulario para publicar reto completado

@@ -81,11 +81,11 @@ export const RETO_TYPES = {
 
 // RUTAS PRINCIPALES
 export const NAV_ITEMS = [
-  { label: 'El Fogón 🔥', to: '/', icon: '🔥' },
-  { label: 'Mi Bosque 🌳', to: '/bosque', icon: '🌳' },
-  { label: 'Retos ⛰️', to: '/retos', icon: '⛰️' },
-  { label: 'Leaderboard 🏆', to: '/leaderboard', icon: '🏆' },
-  { label: 'Mi Perfil 🏕️', to: '/mi-perfil', icon: '🏕️' },
+  { label: 'El Fogón', to: '/', icon: '🔥' },
+  { label: 'Mi Bosque', to: '/bosque', icon: '🌳' },
+  { label: 'Retos', to: '/retos', icon: '⛰️' },
+  { label: 'Leaderboard', to: '/leaderboard', icon: '🏆' },
+  { label: 'Mi Perfil', to: '/mi-perfil', icon: '🏕️' },
 ] as const
 
 // HABILIDADES ESPECIALES

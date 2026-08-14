@@ -51,7 +51,7 @@ export default function Navbar() {
                 title={item.label}
               >
                 <span className="nav-icon">{item.icon}</span>
-                <span className="nav-label">{item.label.split(' ')[0]}</span>
+                <span className="nav-label">{item.label}</span>
               </Link>
             )
           })}

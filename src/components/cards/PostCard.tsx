@@ -73,7 +73,8 @@ export default function PostCard({
         <div className="validation-banner">
           <span className="validation-icon">✅</span>
           <span className="validation-text">
-            Validado por {post.validadorNombre} · +{post.xpAsignado} XP
+            {post.validadorNombre ? `Validado por ${post.validadorNombre}` : 'Reto validado'} · +
+            {post.xpAsignado} XP
           </span>
         </div>
       )}

@@ -284,6 +284,16 @@ export const DEMO_POSTS: Post[] = [
     5,
   ),
   buildPost(
+    'post_7',
+    DEMO_USERS[0],
+    DEMO_RETOS[2],
+    'Refugio de emergencia con la patrulla líder',
+    'Guié el armado de dos refugios en A y luego revisé el de cada patrulla. Todos quedaron impermeables y elevados del suelo.',
+    52,
+    31,
+    2,
+  ),
+  buildPost(
     'post_6',
     DEMO_USERS[6],
     DEMO_RETOS[0],

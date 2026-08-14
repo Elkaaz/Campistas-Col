@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../../firebase'
 import { completeCampistaProfile } from '../../services/campistaProfileService'
+import { DEMO_CAMPISTA_PROFILE } from '../../data/demoData'
 import type { CampistaProfile } from '../../types'
 
 export default function ProfileForm() {
@@ -19,18 +20,18 @@ export default function ProfileForm() {
   }, [])
 
   const [form, setForm] = useState<Partial<CampistaProfile>>({
-    departamento: 'Antioquia',
-    municipio: 'Medellín',
-    role: 'campista',
-    tipoSangre: 'O+',
-    eps: 'SURA',
-    alergias: 'Ninguna',
+    departamento: DEMO_CAMPISTA_PROFILE.departamento,
+    municipio: DEMO_CAMPISTA_PROFILE.municipio,
+    role: DEMO_CAMPISTA_PROFILE.role,
+    tipoSangre: DEMO_CAMPISTA_PROFILE.tipoSangre,
+    eps: DEMO_CAMPISTA_PROFILE.eps,
+    alergias: DEMO_CAMPISTA_PROFILE.alergias,
     contactoEmergencia: {
-      nombre: 'María Gómez',
-      telefono: '3001234567',
-      parentesco: 'Madre',
+      nombre: DEMO_CAMPISTA_PROFILE.contactoEmergencia?.nombre ?? '',
+      telefono: DEMO_CAMPISTA_PROFILE.contactoEmergencia?.telefono ?? '',
+      parentesco: DEMO_CAMPISTA_PROFILE.contactoEmergencia?.parentesco ?? '',
     },
-    bio: 'Campista motivado por el liderazgo y la convivencia.',
+    bio: DEMO_CAMPISTA_PROFILE.bio,
   })
 
   function updateContacto(field: 'nombre' | 'telefono' | 'parentesco', value: string) {
