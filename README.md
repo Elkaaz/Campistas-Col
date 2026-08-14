@@ -340,3 +340,7 @@ Crear una plataforma digital que empodere a jóvenes campistas colombianos a:
 Construida con ❤️ para la comunidad campista
 
 *Agosto 2026 - Versión 1.0.0*
+
+---
+
+✅ **GitHub Actions Deploy Configurado** - Deploy automático en cada push a main
