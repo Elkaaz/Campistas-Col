@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Firebase
+.firebase/
+.firebaserc.local
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Secrets - NUNCA subir esto
+serviceAccountKey.json
+*serviceAccount*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Large files - usar Firebase Storage en su lugar
+public/docs/*.pdf
+public/images/backgrounds/*.jpg
+public/images/backgrounds/*.png

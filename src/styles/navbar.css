@@ -1,0 +1,122 @@
+/* ============================================================
+   NAVBAR - Red Social Campistas Col
+   ============================================================ */
+
+.navbar {
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.navbar-container {
+  max-width: 1400px; margin: 0 auto;
+  padding: 0 20px;
+  height: 64px;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 16px;
+}
+
+/* ── LOGO ── */
+.navbar-brand {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+.navbar-brand:hover { transform: scale(1.04); }
+
+.navbar-logo {
+  height: 46px; width: auto;
+  border-radius: 8px;
+  background: white; padding: 3px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  transition: transform 0.3s ease;
+}
+.navbar-brand:hover .navbar-logo { transform: rotate(-4deg) scale(1.08); }
+
+.brand-text {
+  font-weight: 800; font-size: 17px;
+  color: white;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+  white-space: nowrap;
+}
+
+/* ── NAV ITEMS ── */
+.navbar-items {
+  display: flex; gap: 4px; flex: 1;
+  justify-content: center; flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 11px;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  font-size: 13px; font-weight: 600;
+  white-space: nowrap;
+}
+.nav-item:hover {
+  background: rgba(255,255,255,0.18);
+  color: white; transform: translateY(-1px);
+}
+.nav-item.active {
+  background: rgba(255,255,255,0.25);
+  color: white; font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.nav-icon  { font-size: 17px; line-height: 1; }
+.nav-label { font-size: 12px; }
+
+/* ── USUARIO / NIVEL ── */
+.navbar-user {
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+
+.user-level-badge {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px;
+  background: rgba(255,255,255,0.18);
+  border: 2px solid rgba(255,255,255,0.35);
+  border-radius: 20px;
+  transition: background 0.2s ease;
+}
+.user-level-badge:hover { background: rgba(255,255,255,0.28); }
+
+.user-level-img {
+  height: 22px; width: 22px; object-fit: contain;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
+}
+.user-level-name {
+  color: white; font-weight: 700; font-size: 12px;
+}
+
+.user-menu-button {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 13px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 20px; cursor: pointer;
+  color: white; font-size: 13px; font-weight: 600;
+  transition: background 0.2s ease;
+}
+.user-menu-button:hover { background: rgba(255,255,255,0.25); }
+.user-avatar-placeholder { font-size: 16px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .nav-label       { display: none; }
+  .brand-text      { display: none; }
+  .user-level-name { display: none; }
+  .navbar-items    { gap: 2px; }
+  .nav-item        { padding: 7px 9px; }
+}
+
+@media (max-width: 600px) {
+  .navbar-container { padding: 0 12px; }
+  .navbar-logo      { height: 36px; }
+  .user-level-badge { display: none; }
+}

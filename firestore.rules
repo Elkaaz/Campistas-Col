@@ -1,0 +1,140 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Roles: campista, lider_bosque, comite_departamental, admin
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAdmin() {
+      return getUserRole() == 'admin';
+    }
+
+    function isLider() {
+      return getUserRole() in ['lider_bosque', 'comite_departamental', 'admin'];
+    }
+
+    function isCampista() {
+      return getUserRole() == 'campista';
+    }
+
+    function isOwnProfile(uid) {
+      return request.auth.uid == uid;
+    }
+
+    // Users collection (minimal, for role and permissions)
+    match /users/{uid} {
+      allow read: if isAuthenticated() && (isOwnProfile(uid) || isAdmin());
+      allow write: if isAuthenticated() && isAdmin();
+      allow create: if request.auth.uid == uid;
+    }
+
+    // Profiles collection (campista data)
+    match /profiles/{uid} {
+      allow read: if isAuthenticated() && (isOwnProfile(uid) || isLider() || isAdmin());
+      allow write: if isAuthenticated() && isOwnProfile(uid);
+      allow create: if request.auth.uid == uid;
+    }
+
+    // Levels (read-only)
+    match /levels/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Departments (reference data)
+    match /departments/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Municipalities (reference data)
+    match /municipalities/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Cartillas (educational content)
+    match /cartillas/{cartillaId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+
+      // Subcollection: progreso del campista
+      match /progreso/{uid} {
+        allow read: if isAuthenticated() && (isOwnProfile(uid) || isLider() || isAdmin());
+        allow write: if isAuthenticated() && isOwnProfile(uid);
+        allow create: if request.auth.uid == uid;
+      }
+    }
+
+    // Quizzes (exam content)
+    match /categoriesQuiz/{categoryId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /preguntas/{preguntaId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /respuestas/{respuestaId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Quiz Attempts (user submissions)
+    match /quizAttempts/{attemptId} {
+      allow read: if isAuthenticated() && (resource.data.uid == request.auth.uid || isLider() || isAdmin());
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update: if isAuthenticated() && (resource.data.uid == request.auth.uid || isLider());
+    }
+
+    // Retos (challenges)
+    match /retos/{retoId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+
+      // Subcollection: publicaciones de campistas
+      match /publicaciones/{pubId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+        allow update: if isAuthenticated() && (resource.data.uid == request.auth.uid || isLider() || isAdmin());
+        allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      }
+    }
+
+    // Validaciones (leader approval)
+    match /validaciones/{validacionId} {
+      allow read: if isAuthenticated();
+      allow create: if isLider() && request.resource.data.validadorUid == request.auth.uid;
+      allow update: if isLider() && (resource.data.validadorUid == request.auth.uid || isAdmin());
+    }
+
+    // Interacciones (likes, comments)
+    match /interacciones/{interaccionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+
+    // Activity logs (read-only for admins/liders)
+    match /logsActividad/{logId} {
+      allow read: if isLider() || isAdmin();
+      allow write: if false; // Only server can write
+    }
+
+    // Leaderboard (computed, read-only for everyone)
+    match /leaderboard/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only server-side Cloud Functions can write
+    }
+  }
+}
