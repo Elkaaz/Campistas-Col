@@ -1,4 +1,4 @@
-export type UserRole = 'campista' | 'lider_bosque' | 'comite_departamental' | 'admin'
+import type { UserRole } from './user'
 
 export type CampistaProfile = {
   uid: string

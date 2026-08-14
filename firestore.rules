@@ -37,8 +37,10 @@ service cloud.firestore {
     }
 
     // Profiles collection (campista data)
+    // Lectura abierta a usuarios autenticados: el leaderboard y los perfiles
+    // públicos necesitan leer perfiles ajenos.
     match /profiles/{uid} {
-      allow read: if isAuthenticated() && (isOwnProfile(uid) || isLider() || isAdmin());
+      allow read: if isAuthenticated();
       allow write: if isAuthenticated() && isOwnProfile(uid);
       allow create: if request.auth.uid == uid;
     }
@@ -111,6 +113,21 @@ service cloud.firestore {
       }
     }
 
+    // Consulta collectionGroup sobre publicaciones (panel de validación)
+    match /{path=**}/publicaciones/{pubId} {
+      allow read: if isAuthenticated();
+    }
+
+    // Posts (El Fogón: retos publicados en el muro social)
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      // Cualquier campista autenticado puede actualizar contadores de reacciones;
+      // el autor, líderes y admins pueden editar/validar el resto.
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+
     // Validaciones (leader approval)
     match /validaciones/{validacionId} {
       allow read: if isAuthenticated();
@@ -118,8 +135,8 @@ service cloud.firestore {
       allow update: if isLider() && (resource.data.validadorUid == request.auth.uid || isAdmin());
     }
 
-    // Interacciones (likes, comments)
-    match /interacciones/{interaccionId} {
+    // Interactions (fogatas, nudos, comentarios)
+    match /interactions/{interactionId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
       allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;

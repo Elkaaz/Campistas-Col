@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { NAV_ITEMS } from '../../lib/constants'
+import { useAuth } from '../../context/AuthContext'
 import '../../styles/navbar.css'
 
 const LEVEL_COLORS: Record<string, string> = {
@@ -13,8 +14,8 @@ const LEVEL_COLORS: Record<string, string> = {
 
 export default function Navbar() {
   const location = useLocation()
-  // TODO: leer del contexto de auth real
-  const userLevel = 'tallo'
+  const { profile } = useAuth()
+  const userLevel = profile?.nivelActual ?? 'tallo'
   const levelColor = LEVEL_COLORS[userLevel] ?? '#228B22'
 
   return (
@@ -50,7 +51,7 @@ export default function Navbar() {
                 title={item.label}
               >
                 <span className="nav-icon">{item.icon}</span>
-                <span className="nav-label">{item.label.split(' ')[0]}</span>
+                <span className="nav-label">{item.label}</span>
               </Link>
             )
           })}
@@ -67,10 +68,14 @@ export default function Navbar() {
             />
             <span className="user-level-name">{userLevel.charAt(0).toUpperCase() + userLevel.slice(1)}</span>
           </div>
-          <button className="user-menu-button">
-            <span className="user-avatar-placeholder">👤</span>
-            <span className="user-name">Usuario</span>
-          </button>
+          <Link to="/mi-perfil" className="user-menu-button">
+            {profile?.avatar ? (
+              <img src={profile.avatar} alt={profile.displayName} className="user-avatar-img" />
+            ) : (
+              <span className="user-avatar-placeholder">👤</span>
+            )}
+            <span className="user-name">{profile?.displayName ?? 'Usuario'}</span>
+          </Link>
         </div>
 
       </div>

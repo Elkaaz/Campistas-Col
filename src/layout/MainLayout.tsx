@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import Navbar from '../components/common/Navbar'
+import DemoBanner from '../components/common/DemoBanner'
 import '../styles/layout.css'
 import '../styles/pages.css'
 
@@ -7,6 +8,7 @@ export default function MainLayout() {
   return (
     <div className="main-layout">
       <Navbar />
+      <DemoBanner />
 
       <main className="main-content">
         <Outlet />

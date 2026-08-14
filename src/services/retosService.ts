@@ -6,6 +6,7 @@ import {
   getDocs,
   query,
   where,
+  collectionGroup,
   serverTimestamp,
   increment,
   writeBatch,
@@ -128,7 +129,7 @@ export async function getPublicacionesPendientes(
     if (!retoId) {
       // Obtener todas las publicaciones pendientes de todos los retos
       const snap = await getDocs(
-        query(collection(db, 'publicacionesRetos'), where('estado', '==', 'pendiente')),
+        query(collectionGroup(db, 'publicaciones'), where('estado', '==', 'pendiente')),
       )
       return snap.docs.map((doc) => ({ ...doc.data(), id: doc.id } as PublicacionReto))
     }

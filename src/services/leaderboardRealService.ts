@@ -151,11 +151,13 @@ export async function sincronizarLeaderboard(): Promise<void> {
       query(collection(db, 'profiles'), where('perfilCompleto', '==', true), orderBy('xpTotal', 'desc')),
     )
 
-    snap.docs.forEach((doc, index) => {
-      const profile = doc.data() as CampistaProfile
+    const leaderboardCollection = collection(db, 'leaderboard')
+
+    snap.docs.forEach((snapshot, index) => {
+      const profile = snapshot.data() as CampistaProfile
       const level = getLevelForXp(profile.xpTotal)
 
-      const leaderboardRef = doc(collection(db, 'leaderboard'))
+      const leaderboardRef = doc(leaderboardCollection)
       batch.set(leaderboardRef, {
         rank: index + 1,
         uid: profile.uid,

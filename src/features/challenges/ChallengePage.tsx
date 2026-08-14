@@ -14,6 +14,7 @@ export default function ChallengePage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
+    if (!auth) return
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser)
     })

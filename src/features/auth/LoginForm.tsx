@@ -1,23 +1,26 @@
 import { FormEvent, useState } from 'react'
-import { loginUser } from '../../services/authService'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 
 export default function LoginForm() {
+  const navigate = useNavigate()
+  const { login, demoMode } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
     setLoading(true)
+    setError(null)
 
     try {
-      const user = await loginUser(email, password)
-      if (user) {
-        alert('Inicio de sesión correcto')
-      }
-    } catch (error) {
-      console.error(error)
-      alert('Credenciales inválidas')
+      await login(email, password)
+      navigate('/')
+    } catch (err) {
+      console.error(err)
+      setError('Credenciales inválidas')
     } finally {
       setLoading(false)
     }
@@ -25,6 +28,13 @@ export default function LoginForm() {
 
   return (
     <form className="form-grid" onSubmit={handleSubmit}>
+      {error && <div className="form-error">{error}</div>}
+      {demoMode && (
+        <p className="form-hint">
+          Modo demo: entra con cualquier correo y contraseña para recorrer el prototipo.
+        </p>
+      )}
+
       <label>
         Correo
         <input

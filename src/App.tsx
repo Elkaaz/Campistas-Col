@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import MainLayout from './layout/MainLayout'
 import AuthLayout from './layout/AuthLayout'
+import ProtectedRoute from './components/common/ProtectedRoute'
 
 // Importar estilos de animaciones
 import './styles/animations.css'
@@ -41,27 +42,29 @@ export default function App() {
       </Route>
 
       {/* MAIN APP ROUTES */}
-      <Route element={<MainLayout />}>
-        {/* SOCIAL */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/perfiles/:id" element={<PublicProfilePage />} />
-        <Route path="/bosque" element={<BosqueLocalPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<MainLayout />}>
+          {/* SOCIAL */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/perfiles/:id" element={<PublicProfilePage />} />
+          <Route path="/bosque" element={<BosqueLocalPage />} />
 
-        {/* LEADERBOARD */}
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
-        <Route path="/leaderboard/local" element={<LeaderboardLocalPage />} />
+          {/* LEADERBOARD */}
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/leaderboard/local" element={<LeaderboardLocalPage />} />
 
-        {/* CHALLENGES */}
-        <Route path="/retos" element={<RetosPage />} />
-        <Route path="/retos/:id/publicar" element={<PublicarRetoPage />} />
+          {/* CHALLENGES */}
+          <Route path="/retos" element={<RetosPage />} />
+          <Route path="/retos/:id/publicar" element={<PublicarRetoPage />} />
 
-        {/* LEGACY ROUTES - TO BE REORGANIZED */}
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/mi-perfil" element={<ProfilePage />} />
-        <Route path="/admin" element={<AdminPage />} />
+          {/* LEGACY ROUTES - TO BE REORGANIZED */}
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/mi-perfil" element={<ProfilePage />} />
+          <Route path="/admin" element={<AdminPage />} />
 
-        {/* FALLBACK */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+          {/* FALLBACK */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
       </Route>
     </Routes>
   )

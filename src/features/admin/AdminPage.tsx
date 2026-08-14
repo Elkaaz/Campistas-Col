@@ -13,6 +13,7 @@ export default function AdminPage() {
   const [comentarios, setComentarios] = useState<Record<string, string>>({})
 
   useEffect(() => {
+    if (!auth) return
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser)
     })

@@ -12,6 +12,7 @@ import {
   limit,
 } from 'firebase/firestore'
 import { db } from '../firebase'
+import { demoStore } from '../data/demoStore'
 import { User } from '../types'
 import { LEVELS } from '../lib/constants'
 
@@ -38,6 +39,8 @@ export const profileService = {
    * Obtener perfil de un usuario por UID
    */
   async getProfileByUid(uid: string): Promise<User | null> {
+    if (!db) return demoStore.getUser(uid)
+
     try {
       const docRef = doc(db, 'profiles', uid)
       const docSnap = await getDoc(docRef)
@@ -66,6 +69,8 @@ export const profileService = {
     avatar?: string
   ): Promise<User> {
     try {
+      if (!db) throw new Error('Firebase no configurado (modo demo)')
+
       const newProfile: User = {
         uid,
         displayName,
@@ -111,6 +116,8 @@ export const profileService = {
    * Actualizar perfil
    */
   async updateProfile(uid: string, updates: Partial<User>): Promise<void> {
+    if (!db) return
+
     try {
       await updateDoc(doc(db, 'profiles', uid), {
         ...updates,
@@ -126,6 +133,11 @@ export const profileService = {
    * Agregar XP al usuario
    */
   async addXp(uid: string, amount: number): Promise<void> {
+    if (!db) {
+      demoStore.addXp(uid, amount)
+      return
+    }
+
     try {
       const profile = await this.getProfileByUid(uid)
       if (!profile) throw new Error('Perfil no encontrado')
@@ -149,6 +161,8 @@ export const profileService = {
    * Obtener leaderboard global
    */
   async getLeaderboard(limitNum = 100): Promise<User[]> {
+    if (!db) return demoStore.getUsers().slice(0, limitNum)
+
     try {
       const q = query(
         collection(db, 'profiles'),
@@ -176,6 +190,8 @@ export const profileService = {
     municipio: string,
     limitNum = 50
   ): Promise<User[]> {
+    if (!db) return demoStore.getUsersByMunicipio(municipio).slice(0, limitNum)
+
     try {
       const q = query(
         collection(db, 'profiles'),
@@ -201,6 +217,8 @@ export const profileService = {
    * Obtener campistas de un municipio (bosque local)
    */
   async getCampistasLocal(municipio: string): Promise<User[]> {
+    if (!db) return demoStore.getUsersByMunicipio(municipio)
+
     try {
       const q = query(
         collection(db, 'profiles'),

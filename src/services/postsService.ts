@@ -11,6 +11,7 @@ import {
   Timestamp,
 } from 'firebase/firestore'
 import { db } from '../firebase'
+import { demoStore } from '../data/demoStore'
 import { Post, RetoTipo, CreatePostInput } from '../types'
 
 /**
@@ -21,6 +22,8 @@ export const postsService = {
    * Obtener feed social (posts validados)
    */
   async getFeedSocial(limitNum = 20): Promise<Post[]> {
+    if (!db) return demoStore.getPosts().slice(0, limitNum)
+
     try {
       const q = query(
         collection(db, 'posts'),
@@ -45,6 +48,8 @@ export const postsService = {
    * Obtener posts por tipo de reto
    */
   async getPostsByType(type: RetoTipo, limitNum = 20): Promise<Post[]> {
+    if (!db) return demoStore.getPostsByType(type).slice(0, limitNum)
+
     try {
       const q = query(
         collection(db, 'posts'),
@@ -67,9 +72,38 @@ export const postsService = {
   },
 
   /**
+   * Obtener posts validados de un campista
+   */
+  async getPostsByUid(uid: string, limitNum = 20): Promise<Post[]> {
+    if (!db) return demoStore.getPostsByUid(uid).slice(0, limitNum)
+
+    try {
+      const q = query(
+        collection(db, 'posts'),
+        where('uid', '==', uid),
+        where('estado', '==', 'validado'),
+        orderBy('createdAt', 'desc'),
+        limit(limitNum)
+      )
+      const snapshot = await getDocs(q)
+      return snapshot.docs.map((doc) => ({
+        ...doc.data(),
+        postId: doc.id,
+        createdAt: doc.data().createdAt?.toDate() || new Date(),
+        updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+      } as Post))
+    } catch (error) {
+      console.error('Error getting posts by uid:', error)
+      return []
+    }
+  },
+
+  /**
    * Obtener posts pendientes de validación (para líderes)
    */
   async getPendingPosts(limitNum = 50): Promise<Post[]> {
+    if (!db) return []
+
     try {
       const q = query(
         collection(db, 'posts'),
@@ -103,6 +137,35 @@ export const postsService = {
     municipio: string,
     departamento: string
   ): Promise<string> {
+    if (!db) {
+      const postId = `post_${Date.now()}`
+      demoStore.addPost({
+        postId,
+        uid,
+        autoresNombre,
+        autoresAvatar,
+        autoresNivel,
+        autoresNivelColor,
+        retoId: retoData.retoId,
+        retoTitulo: retoData.retoTitulo,
+        retoTipo: retoData.retoTipo,
+        titulo: retoData.titulo,
+        descripcion: retoData.descripcion,
+        imagenes: retoData.imagenes,
+        estado: 'validado',
+        xpAsignado: retoData.xpAsignado,
+        contadorFogatas: 0,
+        contadorNudos: 0,
+        contadorComentarios: 0,
+        municipio,
+        departamento,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      demoStore.addXp(uid, retoData.xpAsignado)
+      return postId
+    }
+
     try {
       const docRef = await addDoc(collection(db, 'posts'), {
         uid,
@@ -143,6 +206,8 @@ export const postsService = {
     xpAsignado: number,
     comentario?: string
   ): Promise<void> {
+    if (!db) return
+
     try {
       await updateDoc(doc(db, 'posts', postId), {
         estado: 'validado',
@@ -168,6 +233,8 @@ export const postsService = {
     validadorNombre: string,
     comentario: string
   ): Promise<void> {
+    if (!db) return
+
     try {
       await updateDoc(doc(db, 'posts', postId), {
         estado: 'rechazado',
