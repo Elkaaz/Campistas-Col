@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import Navbar from '../components/common/Navbar'
+import BottomNav from '../components/common/BottomNav'
 import '../styles/layout.css'
 import '../styles/pages.css'
 
@@ -32,6 +33,9 @@ export default function MainLayout() {
           Red Social Gamificada para Campamentos Juveniles de Colombia · Movimiento Scout · 2026
         </p>
       </footer>
+
+      {/* BOTTOM NAV - Solo visible en móvil */}
+      <BottomNav />
     </div>
   )
 }

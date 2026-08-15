@@ -2,6 +2,8 @@
 import { useParams, Link } from 'react-router-dom'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../../firebase'
+import { useAuth } from '../../hooks/useAuth'
+import { followService } from '../../services/followService'
 import type { CampistaProfile } from '../../types'
 import NivelBadge from '../../components/cards/NivelBadge'
 import '../../styles/pages.css'
@@ -12,9 +14,12 @@ const NIVEL_EMOJIS: Record<string, string> = {
 
 export default function PublicProfilePage() {
   const { id } = useParams<{ id: string }>()
+  const { user, profile: myProfile } = useAuth()
   const [profile, setProfile] = useState<CampistaProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [isFollowing, setIsFollowing] = useState(false)
+  const [followLoading, setFollowLoading] = useState(false)
 
   useEffect(() => {
     if (!id || !db) { setNotFound(true); setLoading(false); return }
@@ -24,6 +29,10 @@ export default function PublicProfilePage() {
         const snap = await getDoc(doc(db!, 'profiles', id))
         if (snap.exists()) {
           setProfile(snap.data() as CampistaProfile)
+          if (user) {
+            const following = await followService.isFollowing(user.uid, id)
+            setIsFollowing(following)
+          }
         } else {
           setNotFound(true)
         }
@@ -35,7 +44,27 @@ export default function PublicProfilePage() {
       }
     }
     cargar()
-  }, [id])
+  }, [id, user])
+
+  const handleFollowToggle = async () => {
+    if (!user || !id || !profile) return
+    try {
+      setFollowLoading(true)
+      if (isFollowing) {
+        await followService.unfollow(user.uid, id)
+        setIsFollowing(false)
+        setProfile({ ...profile, seguidores: (profile.seguidores || 0) - 1 })
+      } else {
+        await followService.follow(user.uid, id)
+        setIsFollowing(true)
+        setProfile({ ...profile, seguidores: (profile.seguidores || 0) + 1 })
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setFollowLoading(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -58,6 +87,7 @@ export default function PublicProfilePage() {
 
   const nivel = profile.nivelActual || 'semilla'
   const nombreCompleto = profile.displayName || `${profile.firstName} ${profile.lastName}`.trim()
+  const isOwnProfile = user?.uid === id
 
   return (
     <div className="page-shell">
@@ -68,6 +98,7 @@ export default function PublicProfilePage() {
         padding: '32px 24px',
         textAlign: 'center',
         marginBottom: 24,
+        position: 'relative',
       }}>
         {/* Avatar */}
         <div style={{
@@ -90,8 +121,28 @@ export default function PublicProfilePage() {
         </p>
 
         {/* Nivel badge */}
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
           <NivelBadge nivel={nivel} size="md" />
+          {!isOwnProfile && user && (
+            <button
+              onClick={handleFollowToggle}
+              disabled={followLoading}
+              style={{
+                padding: '8px 20px',
+                borderRadius: 20,
+                border: '2px solid white',
+                background: isFollowing ? 'transparent' : 'white',
+                color: isFollowing ? 'white' : '#2E7D32',
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: followLoading ? 'not-allowed' : 'pointer',
+                opacity: followLoading ? 0.6 : 1,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {isFollowing ? '✓ Siguiendo' : '+ Seguir'}
+            </button>
+          )}
         </div>
       </div>
 
@@ -117,6 +168,23 @@ export default function PublicProfilePage() {
             <div style={{ opacity: 0.5, fontSize: 12 }}>{stat.label}</div>
           </div>
         ))}
+      </div>
+
+      {/* ── SOCIAL STATS ── */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: 12,
+        marginBottom: 24,
+      }}>
+        <div className="card" style={{ textAlign: 'center', padding: 16 }}>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#2E7D32' }}>{profile.seguidores || 0}</div>
+          <div style={{ fontSize: 12, opacity: 0.6 }}>Seguidores</div>
+        </div>
+        <div className="card" style={{ textAlign: 'center', padding: 16 }}>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#2E7D32' }}>{profile.siguiendo || 0}</div>
+          <div style={{ fontSize: 12, opacity: 0.6 }}>Siguiendo</div>
+        </div>
       </div>
 
       {/* ── BIO ── */}

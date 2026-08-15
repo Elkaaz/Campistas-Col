@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { NAV_ITEMS } from '../../lib/constants'
 import { useAuth } from '../../hooks/useAuth'
 import { logoutUser } from '../../services/authService'
+import NotificationBell from './NotificationBell'
 import '../../styles/navbar.css'
 
 const LEVEL_COLORS: Record<string, string> = {
@@ -21,6 +22,7 @@ export default function Navbar() {
   const { user, profile } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const nivel = profile?.nivelActual || 'semilla'
   const levelColor = LEVEL_COLORS[nivel] ?? '#10b981'
@@ -36,6 +38,13 @@ export default function Navbar() {
     } finally {
       setLoggingOut(false)
       setMenuOpen(false)
+    }
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      navigate(`/buscar?q=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
 
@@ -59,6 +68,17 @@ export default function Navbar() {
           />
           <span className="brand-text">Campistas Col</span>
         </Link>
+
+        {/* BÚSQUEDA RÁPIDA */}
+        <form className="navbar-search" onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="🔍 Buscar campistas..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="navbar-search-input"
+          />
+        </form>
 
         {/* NAV ITEMS */}
         <div className="navbar-items">
@@ -92,6 +112,9 @@ export default function Navbar() {
                 />
                 <span className="user-level-name">{nivel.charAt(0).toUpperCase() + nivel.slice(1)}</span>
               </div>
+
+              {/* Notificaciones */}
+              <NotificationBell />
 
               {/* Menu de usuario */}
               <div style={{ position: 'relative' }}>
@@ -132,11 +155,11 @@ export default function Navbar() {
                       📊 Mi progreso
                     </Link>
                     <Link
-                      to="/bosque"
+                      to="/buscar"
                       onClick={() => setMenuOpen(false)}
                       style={{ display: 'block', padding: '10px 16px', color: '#e2e8f0', textDecoration: 'none', fontSize: 14 }}
                     >
-                      🌳 Mi bosque
+                      🔍 Buscar campistas
                     </Link>
                     {profile?.role === 'admin' && (
                       <Link
@@ -190,3 +213,4 @@ export default function Navbar() {
     </nav>
   )
 }
+

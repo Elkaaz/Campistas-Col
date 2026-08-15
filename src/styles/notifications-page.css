@@ -1,0 +1,80 @@
+/* ============================================================
+   NOTIFICATIONS PAGE
+   ============================================================ */
+
+.notifications-page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notification-card {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.notification-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+.notification-card.unread {
+  background: #f0f9f4;
+  border-color: #c8e6c9;
+}
+
+.notification-card.unread:hover {
+  background: #e8f5e9;
+}
+
+.notification-card-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.notification-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-card-content h4 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #222;
+}
+
+.notification-card-content p {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.notification-card-content small {
+  font-size: 11px;
+  color: #aaa;
+}
+
+.notification-dot {
+  width: 10px;
+  height: 10px;
+  background: #2E7D32;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}

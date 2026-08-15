@@ -7,29 +7,33 @@ import { postsService, interactionsService } from '../../services'
 import { useAuth } from '../../hooks/useAuth'
 import '../../styles/pages.css'
 
-// Fotos reales de campistas para el empty state / hero
 const HERO_PHOTOS = [
   '/images/backgrounds/bg-1.jpg',
   '/images/backgrounds/bg-2.jpg',
   '/images/backgrounds/bg-3.jpg',
 ]
 
+const PAGE_SIZE = 12
+
 export default function HomePage() {
   const { user, profile } = useAuth()
-  const [posts, setPosts]               = useState<Post[]>([])
-  const [selectedFilter, setFilter]     = useState<RetoTipo | 'todos'>('todos')
-  const [loading, setLoading]           = useState(true)
-  const [error, setError]               = useState<string | null>(null)
-  const [heroBg]                        = useState(() => HERO_PHOTOS[Math.floor(Math.random() * HERO_PHOTOS.length)])
+  const [posts, setPosts] = useState<Post[]>([])
+  const [selectedFilter, setFilter] = useState<RetoTipo | 'todos'>('todos')
+  const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [hasMore, setHasMore] = useState(true)
+  const [heroBg] = useState(() => HERO_PHOTOS[Math.floor(Math.random() * HERO_PHOTOS.length)])
 
   useEffect(() => {
     const load = async () => {
       try {
-        setLoading(true); setError(null)
+        setLoading(true); setError(null); setHasMore(true)
         const data = selectedFilter === 'todos'
-          ? await postsService.getFeedSocial(20)
-          : await postsService.getPostsByType(selectedFilter, 20)
+          ? await postsService.getFeedSocial(PAGE_SIZE)
+          : await postsService.getPostsByType(selectedFilter, PAGE_SIZE)
         setPosts(data)
+        setHasMore(data.length >= PAGE_SIZE)
       } catch {
         setError('Error al cargar publicaciones'); setPosts([])
       } finally { setLoading(false) }
@@ -37,10 +41,27 @@ export default function HomePage() {
     load()
   }, [selectedFilter])
 
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return
+    try {
+      setLoadingMore(true)
+      const next = selectedFilter === 'todos'
+        ? await postsService.getFeedSocial(posts.length + PAGE_SIZE)
+        : await postsService.getPostsByType(selectedFilter, posts.length + PAGE_SIZE)
+      const newPosts = next.slice(posts.length)
+      setPosts(prev => [...prev, ...newPosts])
+      setHasMore(newPosts.length >= PAGE_SIZE)
+    } catch {
+      console.error('Error loading more posts')
+    } finally {
+      setLoadingMore(false)
+    }
+  }
+
   const reload = async () => {
     const data = selectedFilter === 'todos'
-      ? await postsService.getFeedSocial(20)
-      : await postsService.getPostsByType(selectedFilter, 20)
+      ? await postsService.getFeedSocial(posts.length)
+      : await postsService.getPostsByType(selectedFilter, posts.length)
     setPosts(data)
   }
 
@@ -122,11 +143,26 @@ export default function HomePage() {
             </div>
           </div>
         ) : (
-          <div className="posts-grid">
-            {posts.map((post) => (
-              <PostCard key={post.postId} post={post} onFogata={handleFogata} onNudo={handleNudo} />
-            ))}
-          </div>
+          <>
+            <div className="posts-grid">
+              {posts.map((post) => (
+                <PostCard key={post.postId} post={post} onFogata={handleFogata} onNudo={handleNudo} />
+              ))}
+            </div>
+
+            {hasMore && (
+              <div style={{ textAlign: 'center', marginTop: 24 }}>
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="btn-primary"
+                  style={{ padding: '12px 32px' }}
+                >
+                  {loadingMore ? 'Cargando...' : 'Cargar más publicaciones'}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

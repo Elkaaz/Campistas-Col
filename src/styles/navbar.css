@@ -41,6 +41,35 @@
   white-space: nowrap;
 }
 
+/* ── SEARCH ── */
+.navbar-search {
+  flex: 1;
+  max-width: 320px;
+  min-width: 160px;
+}
+
+.navbar-search-input {
+  width: 100%;
+  padding: 8px 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.navbar-search-input::placeholder {
+  color: rgba(255,255,255,0.7);
+}
+
+.navbar-search-input:focus {
+  outline: none;
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.5);
+}
+
 /* ── NAV ITEMS ── */
 .navbar-items {
   display: flex; gap: 4px; flex: 1;
@@ -107,16 +136,23 @@
 .user-avatar-placeholder { font-size: 16px; }
 
 /* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .navbar-search { max-width: 200px; }
+}
+
 @media (max-width: 900px) {
   .nav-label       { display: none; }
   .brand-text      { display: none; }
   .user-level-name { display: none; }
   .navbar-items    { gap: 2px; }
   .nav-item        { padding: 7px 9px; }
+  .navbar-search   { max-width: 140px; }
+  .navbar-search-input { font-size: 12px; padding: 6px 10px; }
 }
 
 @media (max-width: 600px) {
   .navbar-container { padding: 0 12px; }
   .navbar-logo      { height: 36px; }
   .user-level-badge { display: none; }
+  .navbar-search    { display: none; }
 }

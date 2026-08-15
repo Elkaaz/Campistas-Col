@@ -2,33 +2,27 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { getCampistasByDepartamento } from '../../services/campistaProfileService'
-import { getPublicacionesPendientes } from '../../services/retosService'
-import type { CampistaProfile } from '../../types'
+import { postsService } from '../../services/postsService'
+import { servicioService } from '../../services/servicioService'
+import { notificationsService } from '../../services/notificationsService'
+import type { CampistaProfile, Post, Servicio } from '../../types'
 import '../../styles/pages.css'
 
-// Simular el progreso en XP hacia el siguiente nivel. En un entorno real se obtendrian los umbrales de Firestore.
-function getXpProgress(xp: number) {
-  const thresholds = [
-    { name: 'semilla', min: 0, max: 100 },
-    { name: 'raiz', min: 100, max: 300 },
-    { name: 'tallo', min: 300, max: 600 },
-    { name: 'hoja', min: 600, max: 1000 },
-    { name: 'flor', min: 1000, max: 1500 },
-    { name: 'fruto', min: 1500, max: 2500 },
-    { name: 'honorario', min: 2500, max: Infinity },
-  ]
-  const currentLevel = thresholds.find(t => xp >= t.min && xp < t.max) || thresholds[0]
-  const nextLevel = thresholds.find(t => t.min === currentLevel.max)
-  const percent = nextLevel
-    ? Math.min(100, Math.max(0, ((xp - currentLevel.min) / (currentLevel.max - currentLevel.min)) * 100))
-    : 100
-
-  return { currentLevel, nextLevel, percent }
+function getLevelFromXp(xpTotal: number): string {
+  if (xpTotal >= 15000) return 'Fruto'
+  if (xpTotal >= 7500) return 'Flor'
+  if (xpTotal >= 3500) return 'Hoja'
+  if (xpTotal >= 1500) return 'Tallo'
+  if (xpTotal >= 500) return 'Raíz'
+  return 'Semilla'
 }
 
 export default function DashboardPage() {
   const { user, profile, loading: authLoading } = useAuth()
   const [leaderboard, setLeaderboard] = useState<CampistaProfile[]>([])
+  const [myPosts, setMyPosts] = useState<Post[]>([])
+  const [myServicios, setMyServicios] = useState<Servicio[]>([])
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -37,9 +31,21 @@ export default function DashboardPage() {
 
     const cargar = async () => {
       try {
-        const campistasData = await getCampistasByDepartamento(profile.departamento)
+        const [campistasData, posts, servicios, notifs] = await Promise.all([
+          getCampistasByDepartamento(profile.departamento),
+          postsService.getFeedSocial(100),
+          servicioService.getServiciosByUser(user.uid),
+          notificationsService.getUnreadNotifications(user.uid),
+        ])
+        
         const sorted = campistasData.sort((a, b) => (b.xpTotal || 0) - (a.xpTotal || 0)).slice(0, 5)
         setLeaderboard(sorted)
+        
+        const myPostsList = posts.filter(p => p.uid === user.uid).slice(0, 5)
+        setMyPosts(myPostsList)
+        
+        setMyServicios(servicios.slice(0, 5))
+        setUnreadNotifications(notifs.length)
       } catch (err) {
         console.error('[DashboardPage]', err)
       } finally {
@@ -53,13 +59,26 @@ export default function DashboardPage() {
   if (!user || !profile) return <div style={{ padding: 40, textAlign: 'center' }}>Por favor inicia sesion para ver tu progreso.</div>
 
   const userXp = profile.xpTotal || 0
-  const { currentLevel, nextLevel, percent } = getXpProgress(userXp)
+  const nivelActual = getLevelFromXp(userXp)
+  const validatedPosts = myPosts.filter(p => p.estado === 'validado').length
+  const validatedServicios = myServicios.filter(s => s.estado === 'validado').length
+  const totalHoras = myServicios
+    .filter(s => s.estado === 'validado')
+    .reduce((sum, s) => sum + s.horas, 0)
+
+  const xpCategories = [
+    { label: 'Retos', value: validatedPosts * 80, color: '#FF6F00', icon: '⛰️' },
+    { label: 'Cartillas', value: profile.cartillasCompletadas * 50, color: '#2E7D32', icon: '📚' },
+    { label: 'Quizzes', value: profile.quizzesCompletados * 30, color: '#4169E1', icon: '❓' },
+    { label: 'Servicio', value: totalHoras * 10, color: '#DC143C', icon: '⏱️' },
+  ]
+  const maxXp = Math.max(...xpCategories.map(c => c.value), 1)
 
   const stats = [
-    { label: 'XP total', value: String(userXp) },
-    { label: 'Nivel actual', value: currentLevel.name.charAt(0).toUpperCase() + currentLevel.name.slice(1) },
-    { label: 'Ubicacion', value: profile.municipio || 'Sin definir' },
-    { label: 'Rol', value: profile.role.replace('_', ' ') },
+    { label: 'XP Total', value: String(userXp.toLocaleString()), icon: '⚡' },
+    { label: 'Nivel', value: nivelActual, icon: '🎖️' },
+    { label: 'Retos', value: String(validatedPosts), icon: '⛰️' },
+    { label: 'Servicio', value: `${totalHoras}h`, icon: '⏱️' },
   ]
 
   return (
@@ -72,69 +91,129 @@ export default function DashboardPage() {
         <Link to="/mi-perfil" className="primary-button button-link">Editar perfil</Link>
       </div>
 
+      {/* ── STATS RÁPIDOS ── */}
       <section className="stats-grid" style={{
-        display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16, marginBottom: 24
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: 16,
+        marginBottom: 24
       }}>
         {stats.map((item) => (
           <article className="card stat-card" key={item.label} style={{
             background: 'var(--color-surface, rgba(255,255,255,0.05))',
             border: '1px solid rgba(255,255,255,0.08)',
-            padding: 16, borderRadius: 12, textAlign: 'center'
+            padding: 16,
+            borderRadius: 12,
+            textAlign: 'center'
           }}>
-            <p style={{ margin: '0 0 8px', fontSize: 13, opacity: 0.6 }}>{item.label}</p>
-            <strong style={{ fontSize: 20 }}>{item.value}</strong>
+            <div style={{ fontSize: 24, marginBottom: 6 }}>{item.icon}</div>
+            <p style={{ margin: '0 0 6px', fontSize: 12, opacity: 0.6 }}>{item.label}</p>
+            <strong style={{ fontSize: 22 }}>{item.value}</strong>
           </article>
         ))}
       </section>
 
       <section className="content-grid" style={{
-        display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, marginBottom: 24
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: 24,
+        marginBottom: 24
       }}>
+        {/* ── GRÁFICO XP POR CATEGORÍA ── */}
         <article className="card" style={{
-            background: 'var(--color-surface, rgba(255,255,255,0.05))',
-            border: '1px solid rgba(255,255,255,0.08)',
-            padding: 24, borderRadius: 12
+          background: 'var(--color-surface, rgba(255,255,255,0.05))',
+          border: '1px solid rgba(255,255,255,0.08)',
+          padding: 24,
+          borderRadius: 12
         }}>
-          <h2 style={{ fontSize: 18, margin: '0 0 16px' }}>Progreso de Nivel</h2>
-          <div className="progress-box">
-            <div className="progress-bar" style={{
-              height: 12, background: 'rgba(255,255,255,0.1)', borderRadius: 6, overflow: 'hidden', marginBottom: 12
-            }}>
-              <span style={{ 
-                display: 'block', height: '100%', width: `${percent}%`, 
-                background: 'var(--color-primary, #10b981)', borderRadius: 6 
-              }} />
-            </div>
-            <p style={{ margin: 0, fontSize: 14, opacity: 0.8 }}>
-              {Math.round(percent)}% hacia {nextLevel ? nextLevel.name.charAt(0).toUpperCase() + nextLevel.name.slice(1) : 'maximo nivel'}
-            </p>
-            {nextLevel && (
-              <p style={{ margin: '4px 0 0', fontSize: 12, opacity: 0.5 }}>
-                Te faltan {nextLevel.min - userXp} XP para subir de nivel
-              </p>
-            )}
+          <h2 style={{ fontSize: 18, margin: '0 0 16px' }}>XP por Categoría</h2>
+          <div className="xp-bars">
+            {xpCategories.map((cat) => {
+              const percent = Math.round((cat.value / maxXp) * 100)
+              return (
+                <div key={cat.label} className="xp-bar-item">
+                  <div className="xp-bar-label">
+                    <span>{cat.icon} {cat.label}</span>
+                    <span>{cat.value} XP</span>
+                  </div>
+                  <div className="xp-bar-track">
+                    <div
+                      className="xp-bar-fill"
+                      style={{
+                        width: `${percent}%`,
+                        background: cat.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </article>
 
+        {/* ── ACCIONES RÁPIDAS ── */}
         <article className="card" style={{
-            background: 'var(--color-surface, rgba(255,255,255,0.05))',
-            border: '1px solid rgba(255,255,255,0.08)',
-            padding: 24, borderRadius: 12
+          background: 'var(--color-surface, rgba(255,255,255,0.05))',
+          border: '1px solid rgba(255,255,255,0.08)',
+          padding: 24,
+          borderRadius: 12
         }}>
-          <h2 style={{ fontSize: 18, margin: '0 0 16px' }}>Acciones rapidas</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <Link to="/retos" className="btn-secondary" style={{ display: 'block', textAlign: 'center', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: 8, textDecoration: 'none', color: '#fff' }}>🎯 Ver retos disponibles</Link>
-            <Link to="/" className="btn-secondary" style={{ display: 'block', textAlign: 'center', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: 8, textDecoration: 'none', color: '#fff' }}>🔥 Ir al Fogon (Feed)</Link>
-            <Link to="/bosque" className="btn-secondary" style={{ display: 'block', textAlign: 'center', background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: 8, textDecoration: 'none', color: '#fff' }}>🌳 Ver tu bosque</Link>
+          <h2 style={{ fontSize: 18, margin: '0 0 16px' }}>Acciones rápidas</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <Link to="/retos" className="btn-quick-action" style={{ textDecoration: 'none', color: '#fff' }}>🎯 Ver retos disponibles</Link>
+            <Link to="/fogon" className="btn-quick-action" style={{ textDecoration: 'none', color: '#fff' }}>🔥 Ir al Fogón</Link>
+            <Link to="/servicio" className="btn-quick-action" style={{ textDecoration: 'none', color: '#fff' }}>⏱️ Registrar horas</Link>
+            {unreadNotifications > 0 && (
+              <Link to="/notificaciones" className="btn-quick-action" style={{ textDecoration: 'none', color: '#fff', background: '#F44336' }}>
+                🔔 {unreadNotifications} notificaciones
+              </Link>
+            )}
           </div>
         </article>
       </section>
 
+      {/* ── ACTIVIDAD RECIENTE ── */}
+      <section className="card" style={{
+        background: 'var(--color-surface, rgba(255,255,255,0.05))',
+        border: '1px solid rgba(255,255,255,0.08)',
+        padding: 24,
+        borderRadius: 12,
+        marginBottom: 24
+      }}>
+        <h2 style={{ fontSize: 18, margin: '0 0 16px' }}>Actividad Reciente</h2>
+        {myPosts.length === 0 && myServicios.length === 0 ? (
+          <p style={{ opacity: 0.5, fontSize: 14 }}>Aún no tienes actividad. ¡Comienza completando retos!</p>
+        ) : (
+          <ul className="activity-list" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {myPosts.slice(0, 3).map((post) => (
+              <li key={post.postId} className="activity-item">
+                <span className="activity-icon">⛰️</span>
+                <div className="activity-content">
+                  <strong>Completaste {post.retoTitulo}</strong>
+                  <p>+{post.xpAsignado} XP · {new Date(post.createdAt).toLocaleDateString('es-CO')}</p>
+                </div>
+              </li>
+            ))}
+            {myServicios.slice(0, 2).map((servicio) => (
+              <li key={servicio.servicioId} className="activity-item">
+                <span className="activity-icon">⏱️</span>
+                <div className="activity-content">
+                  <strong>{servicio.titulo}</strong>
+                  <p>{servicio.horas}h · {new Date(servicio.createdAt).toLocaleDateString('es-CO')}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* ── LEADERBOARD LOCAL ── */}
       <section className="card leaderboard-box" style={{
-            background: 'var(--color-surface, rgba(255,255,255,0.05))',
-            border: '1px solid rgba(255,255,255,0.08)',
-            padding: 24, borderRadius: 12
-        }}>
+        background: 'var(--color-surface, rgba(255,255,255,0.05))',
+        border: '1px solid rgba(255,255,255,0.08)',
+        padding: 24,
+        borderRadius: 12
+      }}>
         <h2 style={{ fontSize: 18, margin: '0 0 16px' }}>Top 5 en {profile.departamento || 'tu zona'}</h2>
         {leaderboard.length === 0 ? (
           <p style={{ opacity: 0.5, fontSize: 14 }}>Aun no hay campistas en tu zona</p>

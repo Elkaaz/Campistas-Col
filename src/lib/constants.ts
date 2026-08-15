@@ -79,14 +79,22 @@ export const RETO_TYPES = {
   primeros_auxilios: { icon: '🚑', label: 'Primeros Auxilios', color: '#E74C3C', description: 'Salud y emergencias' },
 } as const
 
-// RUTAS PRINCIPALES
+// NAV ITEMS PRINCIPALES (Desktop)
 export const NAV_ITEMS = [
-  { label: 'El Fogón 🔥', to: '/', icon: '🔥' },
+  { label: 'El Fogón 🔥', to: '/fogon', icon: '🔥' },
   { label: 'Mi Bosque 🌳', to: '/bosque', icon: '🌳' },
-  { label: 'Mi Aprendizaje 📚', to: '/cartillas', icon: '📚' },
+  { label: 'Mi Aprendizaje 📚', to: '/aprendizaje', icon: '📚' },
   { label: 'Retos ⛰️', to: '/retos', icon: '⛰️' },
   { label: 'Niveles 🎖️', to: '/niveles', icon: '🎖️' },
   { label: 'Leaderboard 🏆', to: '/leaderboard', icon: '🏆' },
+] as const
+
+// NAV ITEMS BOTTOM (Mobile)
+export const NAV_ITEMS_BOTTOM = [
+  { label: 'Fogón', to: '/fogon', icon: '🔥' },
+  { label: 'Bosque', to: '/bosque', icon: '🌳' },
+  { label: 'Retos', to: '/retos', icon: '⛰️' },
+  { label: 'Perfil', to: '/mi-perfil', icon: '👤' },
 ] as const
 
 // HABILIDADES ESPECIALES

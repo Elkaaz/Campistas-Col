@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Post } from '../../types'
 import { getRetoTypeIcon, getRetoTypeLabel } from '../../lib/colors'
 import '../../styles/components.css'
@@ -10,10 +11,6 @@ interface PostCardProps {
   userHasNudo?: boolean
 }
 
-/**
- * PostCard - Card de publicación de reto en El Fogón
- * Muestra info del usuario, reto completado, imagen y reacciones
- */
 export default function PostCard({
   post,
   onFogata,
@@ -25,25 +22,27 @@ export default function PostCard({
     <article className="post-card">
       {/* HEADER - Autor */}
       <div className="post-header">
-        <div className="post-author">
-          {post.autoresAvatar && (
-            <img
-              src={post.autoresAvatar}
-              alt={post.autoresNombre}
-              className="author-avatar"
-              style={{ borderColor: post.autoresNivelColor }}
-            />
-          )}
-          <div className="author-info">
-            <div className="author-name">{post.autoresNombre}</div>
-            <div className="author-meta">
-              <span className="author-level" style={{ color: post.autoresNivelColor }}>
-                {post.autoresNivel}
-              </span>
-              <span className="author-location">📍 {post.municipio}</span>
+        <Link to={`/perfiles/${post.uid}`} className="post-author-link">
+          <div className="post-author">
+            {post.autoresAvatar && (
+              <img
+                src={post.autoresAvatar}
+                alt={post.autoresNombre}
+                className="author-avatar"
+                style={{ borderColor: post.autoresNivelColor }}
+              />
+            )}
+            <div className="author-info">
+              <div className="author-name">{post.autoresNombre}</div>
+              <div className="author-meta">
+                <span className="author-level" style={{ color: post.autoresNivelColor }}>
+                  {post.autoresNivel}
+                </span>
+                <span className="author-location">📍 {post.municipio}</span>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* TIPO DE RETO - Badge */}
         <div className="reto-badge" style={{ backgroundColor: post.retoTipo }}>
@@ -54,18 +53,22 @@ export default function PostCard({
 
       {/* CONTENIDO - Texto */}
       <div className="post-content">
-        <h3>{post.titulo}</h3>
-        <p>{post.descripcion}</p>
+        <Link to={`/fogon/${post.postId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <h3>{post.titulo}</h3>
+          <p>{post.descripcion.length > 140 ? post.descripcion.slice(0, 140) + '...' : post.descripcion}</p>
+        </Link>
       </div>
 
       {/* IMAGEN */}
       {post.imagenes.length > 0 && (
-        <div className="post-image-container">
-          <img src={post.imagenes[0]} alt={post.titulo} className="post-image" />
-          {post.imagenes.length > 1 && (
-            <div className="image-count">+{post.imagenes.length - 1}</div>
-          )}
-        </div>
+        <Link to={`/fogon/${post.postId}`} style={{ textDecoration: 'none' }}>
+          <div className="post-image-container">
+            <img src={post.imagenes[0]} alt={post.titulo} className="post-image" />
+            {post.imagenes.length > 1 && (
+              <div className="image-count">+{post.imagenes.length - 1}</div>
+            )}
+          </div>
+        </Link>
       )}
 
       {/* VALIDACIÓN */}
@@ -112,10 +115,10 @@ export default function PostCard({
           <span className="reaction-count">{post.contadorNudos}</span>
         </button>
 
-        <button className="reaction-btn" title="Comentarios">
+        <Link to={`/fogon/${post.postId}`} className="reaction-btn" title="Comentarios" style={{ textDecoration: 'none' }}>
           <span className="reaction-icon">💬</span>
           <span className="reaction-count">{post.contadorComentarios}</span>
-        </button>
+        </Link>
 
         <button className="reaction-btn" title="Compartir">
           <span className="reaction-icon">📌</span>
