@@ -1,20 +1,72 @@
+/* =============================================
+   CAMPISTAS JUVENILES COLOMBIA - Design System v2.0
+   Plataforma Profesional de Formación y Servicio
+   ============================================= */
+
 :root {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #1f2937;
-  background: #f3f4f6;
+    /* PALETA PROFESIONAL INSTITUCIONAL */
+    --primary: #2E7D32;           /* Verde institucional */
+    --primary-dark: #1B5E20;       /* Verde oscuro */
+    --primary-light: #E8F5E9;      /* Verde claro */
+    --accent: #FF6F00;            /* Naranja */
+    
+    /* Colores de texto */
+    --text-primary: #212121;
+    --text-secondary: #388E3C;
+    --text-tertiary: #81C784;
+    
+    /* Fondos */
+    --surface: #FFFFFF;
+    --surface-alt: #F5F5F5;
+    --border: #C8E6C9;
+    
+    /* Estados */
+    --success: #4CAF50;
+    --warning: #FF9800;
+    --error: #F44336;
+    --blocked: #9E9E9E;
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+    
+    /* Espaciado */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+    --space-8: 32px;
+    
+    /* Border radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+    
+    /* Transiciones */
+    --transition-base: 0.3s ease;
+}
+
+/* Tipografía */
+:root {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    font-weight: 400;
+    color: var(--text-primary);
+    font-size: 14px;
 }
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background: linear-gradient(180deg, #fef3c7, #e0f2fe);
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background: var(--surface-alt);
 }
 
 h1, h2, h3, p {
@@ -33,289 +85,358 @@ button, input {
   min-height: 100vh;
 }
 
+/* =========================================
+   Header / Navbar Profesional
+   ========================================= */
 .main-nav {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 16px 24px;
-  background: rgba(15, 23, 42, 0.88);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--border);
 }
 
 .brand {
-  color: #f8fafc;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1.125rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .nav-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .nav-link {
-  color: #dbeafe;
+  color: var(--text-secondary);
   text-decoration: none;
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-weight: 600;
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-4);
+  font-weight: 500;
+  transition: var(--transition-base);
 }
 
 .nav-link.active,
 .nav-link:hover {
-  background: rgba(14, 165, 233, 0.18);
-  color: white;
+  background: var(--primary-light);
+  color: var(--primary);
 }
 
+/* =========================================
+   Layout Containers
+   ========================================= */
 .app-main {
-  padding: 24px 0 60px;
+  padding: var(--space-6) 0 var(--space-12);
 }
 
 .page-shell {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 32px 20px 60px;
+  padding: var(--space-8) var(--space-6);
 }
 
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  gap: 16px;
+  margin-bottom: var(--space-6);
+  gap: var(--space-4);
 }
 
+/* =========================================
+   Badges
+   ========================================= */
 .badge {
-  display: inline-block;
-  background: #e0f2fe;
-  color: #0f766e;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 6px 10px;
-  border-radius: 999px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
+.badge-success { background: var(--success); color: white; }
+.badge-warning { background: var(--warning); color: white; }
+.badge-error { background: var(--error); color: white; }
+.badge-blocked { background: var(--blocked); color: white; }
+
+/* =========================================
+   Cards
+   ========================================= */
 .card {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 18px;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+  transition: var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .auth-card {
   max-width: 520px;
-  margin: 80px auto 0;
+  margin: var(--space-12) auto 0;
 }
 
 .auth-header {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-4);
 }
 
+/* =========================================
+   Forms
+   ========================================= */
 .segmented-control {
   display: flex;
-  gap: 8px;
-  background: #f3f4f6;
-  padding: 6px;
-  border-radius: 12px;
-  margin-bottom: 20px;
+  gap: var(--space-2);
+  background: var(--surface-alt);
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-4);
 }
 
 .segmented-control button {
   flex: 1;
   border: none;
   background: transparent;
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
   cursor: pointer;
   font-weight: 600;
+  transition: var(--transition-base);
 }
 
 .segmented-control .active {
-  background: white;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .form-grid {
   display: grid;
-  gap: 18px;
+  gap: var(--space-4);
 }
 
 .form-grid label {
   display: grid;
-  gap: 8px;
+  gap: var(--space-2);
   font-weight: 600;
-  color: #374151;
+  color: var(--text-primary);
+  font-size: 0.875rem;
 }
 
 .form-grid input {
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-  padding: 12px 14px;
-  background: white;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  font-size: 0.875rem;
+  transition: var(--transition-base);
+}
+
+.form-grid input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 .form-error {
-  background: #fee2e2;
-  color: #7f1d1d;
-  border: 1px solid #fca5a5;
-  border-radius: 12px;
-  padding: 12px 14px;
+  background: #FFEBEE;
+  color: #C62828;
+  border: 1px solid #EF5350;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .form-success {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #86efac;
-  border-radius: 12px;
-  padding: 12px 14px;
+  background: #E8F5E9;
+  color: #2E7D32;
+  border: 1px solid #4CAF50;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
+/* =========================================
+   Buttons
+   ========================================= */
 .primary-button {
   border: none;
-  background: linear-gradient(135deg, #16a34a, #0f766e);
+  background: var(--primary);
   color: white;
-  padding: 12px 18px;
-  border-radius: 12px;
-  font-weight: 700;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: var(--transition-base);
+}
+
+.primary-button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
 }
 
 .button-link {
   width: fit-content;
 }
 
+/* =========================================
+   Stats Grid
+   ========================================= */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  text-align: center;
 }
 
 .stat-card p {
-  margin: 0 0 8px;
-  color: #6b7280;
+  margin: 0 0 var(--space-2);
+  color: var(--text-tertiary);
 }
 
 .stat-card strong {
   font-size: 2rem;
-  color: #111827;
+  color: var(--primary);
+  font-weight: 700;
 }
 
+/* =========================================
+   Content Grid
+   ========================================= */
 .content-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
-  gap: 20px;
+  gap: var(--space-6);
 }
 
+/* =========================================
+   Lists
+   ========================================= */
 .list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .list-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 12px 14px;
+  gap: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
 }
 
 .list-item small {
   display: block;
-  color: #16a34a;
-  margin-top: 4px;
-  font-weight: 700;
+  color: var(--primary);
+  margin-top: var(--space-1);
+  font-weight: 600;
 }
 
 .status-tag {
-  background: #ecfeff;
-  color: #0f766e;
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 0.7rem;
-  font-weight: 700;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
+/* =========================================
+   Progress Bar
+   ========================================= */
 .progress-box {
-  margin-top: 16px;
+  margin-top: var(--space-4);
 }
 
 .progress-bar {
   width: 100%;
-  height: 12px;
-  background: #e5e7eb;
-  border-radius: 999px;
+  height: 8px;
+  background: var(--surface-alt);
+  border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .progress-bar span {
   display: block;
   height: 100%;
-  background: linear-gradient(135deg, #f59e0b, #16a34a);
+  background: var(--primary);
   border-radius: inherit;
+  transition: width var(--transition-base);
 }
 
+/* =========================================
+   Leaderboard
+   ========================================= */
 .leaderboard-box {
-  margin-top: 24px;
+  margin-top: var(--space-6);
 }
 
 .leaderboard-list {
   list-style: none;
-  margin: 18px 0 0;
+  margin: var(--space-4) 0 0;
   padding: 0;
   display: grid;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .leaderboard-item {
   display: grid;
   grid-template-columns: 50px 1fr auto;
-  gap: 12px;
+  gap: var(--space-3);
   align-items: center;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
 }
 
 .rank {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #fef3c7;
-  color: #92400e;
-  font-weight: 800;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
 }
 
 .leaderboard-item small {
   display: block;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 .leaderboard-meta {
@@ -324,11 +445,14 @@ button, input {
 
 .leaderboard-meta span {
   display: block;
-  color: #0f766e;
+  color: var(--primary);
   font-weight: 700;
 }
 
-@media (max-width: 760px) {
+/* =========================================
+   Responsive
+   ========================================= */
+@media (max-width: 768px) {
   .content-grid {
     grid-template-columns: 1fr;
   }
@@ -345,5 +469,18 @@ button, input {
   .leaderboard-meta {
     grid-column: 2;
     text-align: left;
+  }
+  
+  .main-nav {
+    padding: var(--space-3) var(--space-4);
+  }
+  
+  .nav-links {
+    gap: var(--space-2);
+  }
+  
+  .nav-link {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.875rem;
   }
 }

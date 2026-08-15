@@ -1,38 +1,39 @@
-import { useState, useEffect } from 'react'
-import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../../firebase'
-import { completeCampistaProfile } from '../../services/campistaProfileService'
+﻿import { useState, useEffect, FormEvent } from 'react'
+import { useAuth } from '../../hooks/useAuth'
+import { updateCampistaProfile } from '../../services/campistaProfileService'
 import type { CampistaProfile } from '../../types'
 
 export default function ProfileForm() {
-  const [user, setUser] = useState<any>(null)
+  const { user, profile, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser)
-    })
-    return () => unsubscribe()
-  }, [])
-
   const [form, setForm] = useState<Partial<CampistaProfile>>({
-    departamento: 'Antioquia',
-    municipio: 'Medellín',
-    role: 'campista',
-    tipoSangre: 'O+',
-    eps: 'SURA',
-    alergias: 'Ninguna',
-    contactoEmergencia: {
-      nombre: 'María Gómez',
-      telefono: '3001234567',
-      parentesco: 'Madre',
-    },
-    bio: 'Campista motivado por el liderazgo y la convivencia.',
+    departamento: '',
+    municipio: '',
+    tipoSangre: '',
+    eps: '',
+    alergias: '',
+    contactoEmergencia: { nombre: '', telefono: '', parentesco: '' },
+    bio: '',
   })
 
-  async function handleSave(e: React.FormEvent) {
+  useEffect(() => {
+    if (profile) {
+      setForm({
+        departamento: profile.departamento || '',
+        municipio: profile.municipio || '',
+        tipoSangre: profile.tipoSangre || '',
+        eps: profile.eps || '',
+        alergias: profile.alergias || '',
+        contactoEmergencia: profile.contactoEmergencia || { nombre: '', telefono: '', parentesco: '' },
+        bio: profile.bio || '',
+      })
+    }
+  }, [profile])
+
+  async function handleSave(e: FormEvent) {
     e.preventDefault()
 
     if (!user?.uid) {
@@ -45,7 +46,7 @@ export default function ProfileForm() {
     setSuccess(false)
 
     try {
-      await completeCampistaProfile(user.uid, form)
+      await updateCampistaProfile(user.uid, form)
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
@@ -55,10 +56,12 @@ export default function ProfileForm() {
     }
   }
 
+  if (authLoading) return <div style={{ padding: 20 }}>Cargando perfil...</div>
+
   return (
     <form className="form-grid" onSubmit={handleSave}>
-      {error && <div className="form-error">{error}</div>}
-      {success && <div className="form-success">✓ Perfil guardado exitosamente</div>}
+      {error && <div className="form-error" style={{ color: 'red', padding: 10, background: '#fee2e2' }}>{error}</div>}
+      {success && <div className="form-success" style={{ color: 'green', padding: 10, background: '#dcfce7' }}>✓ Perfil guardado exitosamente</div>}
 
       <label>
         Departamento
@@ -76,16 +79,6 @@ export default function ProfileForm() {
           onChange={(e) => setForm({ ...form, municipio: e.target.value })}
           required
         />
-      </label>
-
-      <label>
-        Rol en el grupo
-        <select value={form.role || 'campista'} onChange={(e) => setForm({ ...form, role: e.target.value as any })}>
-          <option value="campista">Campista</option>
-          <option value="lider_bosque">Líder de bosque</option>
-          <option value="comite_departamental">Comité departamental</option>
-          <option value="admin">Admin</option>
-        </select>
       </label>
 
       <label>
@@ -111,39 +104,39 @@ export default function ProfileForm() {
       </label>
 
       <label>
-        Contacto emergencia
+        Contacto emergencia - Nombre
         <input
           value={form.contactoEmergencia?.nombre || ''}
           onChange={(e) =>
             setForm({
               ...form,
-              contactoEmergencia: { ...form.contactoEmergencia, nombre: e.target.value },
+              contactoEmergencia: { ...(form.contactoEmergencia as any), nombre: e.target.value },
             })
           }
         />
       </label>
 
       <label>
-        Teléfono de emergencia
+        Contacto emergencia - Teléfono
         <input
           value={form.contactoEmergencia?.telefono || ''}
           onChange={(e) =>
             setForm({
               ...form,
-              contactoEmergencia: { ...form.contactoEmergencia, telefono: e.target.value },
+              contactoEmergencia: { ...(form.contactoEmergencia as any), telefono: e.target.value },
             })
           }
         />
       </label>
 
       <label>
-        Parentesco
+        Contacto emergencia - Parentesco
         <input
           value={form.contactoEmergencia?.parentesco || ''}
           onChange={(e) =>
             setForm({
               ...form,
-              contactoEmergencia: { ...form.contactoEmergencia, parentesco: e.target.value },
+              contactoEmergencia: { ...(form.contactoEmergencia as any), parentesco: e.target.value },
             })
           }
         />
@@ -164,4 +157,3 @@ export default function ProfileForm() {
     </form>
   )
 }
-

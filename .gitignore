@@ -33,3 +33,6 @@ npm-debug.log*
 public/docs/*.pdf
 public/images/backgrounds/*.jpg
 public/images/backgrounds/*.png
+
+# Firebase secrets
+serviceAccountKey.json

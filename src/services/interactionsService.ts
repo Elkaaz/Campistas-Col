@@ -30,7 +30,7 @@ export const interactionsService = {
     try {
       // Verificar si ya existe esta interacción
       const q = query(
-        collection(db, 'interactions'),
+        collection(db, 'interacciones'),
         where('uid', '==', uid),
         where('postId', '==', postId),
         where('tipo', '==', tipo)
@@ -39,7 +39,7 @@ export const interactionsService = {
 
       if (existing.empty) {
         // Agregar nueva interacción
-        await addDoc(collection(db, 'interactions'), {
+        await addDoc(collection(db, 'interacciones'), {
           uid,
           usuarioNombre,
           usuarioAvatar,
@@ -72,7 +72,7 @@ export const interactionsService = {
     try {
       // Encontrar y eliminar la interacción
       const q = query(
-        collection(db, 'interactions'),
+        collection(db, 'interacciones'),
         where('uid', '==', uid),
         where('postId', '==', postId),
         where('tipo', '==', tipo)
@@ -101,7 +101,7 @@ export const interactionsService = {
   async getUserInteractions(uid: string): Promise<Interaction[]> {
     try {
       const q = query(
-        collection(db, 'interactions'),
+        collection(db, 'interacciones'),
         where('uid', '==', uid)
       )
       const snapshot = await getDocs(q)
@@ -122,7 +122,7 @@ export const interactionsService = {
   async getPostInteractions(postId: string): Promise<Interaction[]> {
     try {
       const q = query(
-        collection(db, 'interactions'),
+        collection(db, 'interacciones'),
         where('postId', '==', postId)
       )
       const snapshot = await getDocs(q)
@@ -147,7 +147,7 @@ export const interactionsService = {
   ): Promise<boolean> {
     try {
       const q = query(
-        collection(db, 'interactions'),
+        collection(db, 'interacciones'),
         where('uid', '==', uid),
         where('postId', '==', postId),
         where('tipo', '==', tipo)

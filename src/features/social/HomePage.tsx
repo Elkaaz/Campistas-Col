@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PostCard from '../../components/cards/PostCard'
 import { RETO_TYPES } from '../../lib/constants'
 import { Post, RetoTipo } from '../../types'
 import { postsService, interactionsService } from '../../services'
+import { useAuth } from '../../hooks/useAuth'
 import '../../styles/pages.css'
 
 // Fotos reales de campistas para el empty state / hero
@@ -14,6 +15,7 @@ const HERO_PHOTOS = [
 ]
 
 export default function HomePage() {
+  const { user, profile } = useAuth()
   const [posts, setPosts]               = useState<Post[]>([])
   const [selectedFilter, setFilter]     = useState<RetoTipo | 'todos'>('todos')
   const [loading, setLoading]           = useState(true)
@@ -43,12 +45,31 @@ export default function HomePage() {
   }
 
   const handleFogata = async (postId: string) => {
-    try { await interactionsService.addInteraction('user_current','Usuario','',postId,'fogata'); await reload() }
-    catch (e) { console.error(e) }
+    if (!user) return
+    try {
+      await interactionsService.addInteraction(
+        user.uid,
+        profile?.displayName || user.displayName || 'Campista',
+        profile?.avatarUrl || '',
+        postId,
+        'fogata'
+      )
+      await reload()
+    } catch (e) { console.error(e) }
   }
+
   const handleNudo = async (postId: string) => {
-    try { await interactionsService.addInteraction('user_current','Usuario','',postId,'nudo'); await reload() }
-    catch (e) { console.error(e) }
+    if (!user) return
+    try {
+      await interactionsService.addInteraction(
+        user.uid,
+        profile?.displayName || user.displayName || 'Campista',
+        profile?.avatarUrl || '',
+        postId,
+        'nudo'
+      )
+      await reload()
+    } catch (e) { console.error(e) }
   }
 
   return (
@@ -109,8 +130,10 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* ── FAB ── */}
-      <Link to="/retos" className="fab" title="Publicar nuevo reto">+</Link>
+      {/* ── FAB (solo si hay sesion) ── */}
+      {user && (
+        <Link to="/retos" className="fab" title="Publicar nuevo reto">+</Link>
+      )}
     </div>
   )
 }
