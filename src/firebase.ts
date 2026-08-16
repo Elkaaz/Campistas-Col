@@ -17,7 +17,18 @@ const hasFirebaseConfig = Object.values(firebaseConfig).every(Boolean)
 
 export const firebaseReady = hasFirebaseConfig
 
-export const app = hasFirebaseConfig ? getApps().length ? getApp() : initializeApp(firebaseConfig) : null
-export const auth = app ? getAuth(app) : null
-export const db = app ? getFirestore(app) : null
-export const storage = app ? getStorage(app) : null
+let app: any = null
+let auth: any = null
+let db: any = null
+let storage: any = null
+
+if (hasFirebaseConfig) {
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig)
+  auth = getAuth(app)
+  db = getFirestore(app)
+  storage = getStorage(app)
+} else {
+  console.warn('[firebase] Configuración incompleta. La app funcionará en modo limitado.')
+}
+
+export { app, auth, db, storage }

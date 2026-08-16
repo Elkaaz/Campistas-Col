@@ -9,6 +9,7 @@ import {
   doc,
   Timestamp,
   orderBy,
+  increment,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { Comment, CreateCommentInput } from '../types'

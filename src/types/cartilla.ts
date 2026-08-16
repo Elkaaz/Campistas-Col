@@ -26,6 +26,12 @@ export interface Cartilla {
   // ESTADÍSTICAS
   competidosTotal: number
   
+  // PROGRESIÓN
+  xpAlCompletar: number
+  insigniaOtorgada?: string
+  nivelMinimo: string
+  requisitosPrevios?: string[] // ids de cartillas requeridas
+  
   // METADATA
   creadoPor: string
   createdAt: Date

@@ -1,5 +1,6 @@
 ﻿export * from './authService'
 export * from './campistaProfileService'
+export * from './cloudinaryService'
 export * from './commentsService'
 export * from './eventsService'
 export * from './followService'

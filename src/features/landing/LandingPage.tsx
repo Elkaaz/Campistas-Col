@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
 import '../../styles.css'
 
 const NIVELES = [
@@ -11,12 +12,35 @@ const NIVELES = [
 ]
 
 export default function LandingPage() {
+  const { isAuthenticated } = useAuth()
+
+  if (isAuthenticated) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--surface-alt)',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🏕️</div>
+          <h2 style={{ margin: '0 0 12px' }}>Ya tienes sesión activa</h2>
+          <p style={{ opacity: 0.6, marginBottom: 24 }}>Redirigiéndote a la Zona de Fogata...</p>
+          <Link to="/fogon" className="primary-button large shadow-glow">
+            Ir a la Zona de Fogata ahora
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="landing-shell">
       {/* Navbar transparente sobre el hero */}
       <nav className="landing-nav landing-nav--transparent">
         <Link to="/" className="brand">
-          <img src="/images/logos/logo-principal.png" alt="Campistas Col" className="brand-logo" />
+          <img src="/images/logos/logo-campistas.png" alt="Campistas Col" className="brand-logo" />
           <span>Campistas Col</span>
         </Link>
         <div className="nav-actions">
@@ -39,7 +63,7 @@ export default function LandingPage() {
         <div className="hero-content hero-content--centered">
           {/* LOGO PRINCIPAL CON NIVELES */}
           <div className="hero-logo-stack">
-            <img src="/images/logos/logo-principal.png" alt="Campistas Col" className="hero-main-logo" />
+            <img src="/images/logos/logo-campistas.png" alt="Campistas Col" className="hero-main-logo" />
             <div className="hero-niveles">
               {NIVELES.map((nivel, index) => (
                 <div
@@ -116,7 +140,7 @@ export default function LandingPage() {
         <div className="benefit-card">
           <span className="benefit-icon">🤝</span>
           <h3>Comunidad Nacional</h3>
-          <p>Conoce campistas de otras regiones y comparte tus experiencias en El Fogón.</p>
+          <p>Conoce campistas de otras regiones y comparte tus experiencias en la Zona de Fogata.</p>
         </div>
         <div className="benefit-card">
           <span className="benefit-icon">🌱</span>

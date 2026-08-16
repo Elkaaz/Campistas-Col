@@ -15,6 +15,7 @@ dist/
 
 # Secrets - NUNCA subir esto
 serviceAccountKey.json
+firebase-sa.json
 *serviceAccount*.json
 
 # OS

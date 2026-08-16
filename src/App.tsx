@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import MainLayout from './layout/MainLayout'
 import AuthLayout from './layout/AuthLayout'
 import ProtectedRoute from './components/common/ProtectedRoute'
+import ConnectionStatus from './components/common/ConnectionStatus'
 
 // Importar estilos de animaciones
 import './styles/animations.css'
@@ -20,6 +21,12 @@ import LoginPage from './features/auth/LoginPage'
 // LEARNING
 import CartillasPage from './features/learning/CartillasPage'
 import QuizzesPage from './features/learning/QuizzesPage'
+
+// LEARNING - Forzar inclusión en bundle (tree-shaking fix)
+if (typeof window === 'undefined') {
+  console.log('CartillasPage loaded:', typeof CartillasPage)
+  console.log('QuizzesPage loaded:', typeof QuizzesPage)
+}
 
 // EVENTS
 import EventsPage from './features/events/EventsPage'
@@ -59,47 +66,50 @@ import NotificationsPage from './features/notifications/NotificationsPage'
 
 export default function App() {
   return (
-    <Routes>
-      {/* ─── LANDING PAGE (Página de Inicio Premium) ─── */}
-      <Route path="/" element={<LandingPage />} />
+    <>
+      <Routes>
+        {/* ─── LANDING PAGE (Página de Inicio Premium) ─── */}
+        <Route path="/" element={<LandingPage />} />
 
-      {/* ─── RUTAS PUBLICAS (Auth) ─── */}
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-      </Route>
-
-      {/* ─── RUTAS PUBLICAS con layout (se pueden ver sin login) ─── */}
-      <Route element={<MainLayout />}>
-        <Route path="/fogon" element={<HomePage />} />
-        <Route path="/fogon/:id" element={<PostDetailPage />} />
-        <Route path="/buscar" element={<SearchPage />} />
-        <Route path="/eventos" element={<EventsPage />} />
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
-        <Route path="/leaderboard/local" element={<LeaderboardLocalPage />} />
-        <Route path="/retos" element={<RetosPage />} />
-        <Route path="/perfiles/:id" element={<PublicProfilePage />} />
-
-        {/* ─── RUTAS PRIVADAS (requieren login) ─── */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/bosque" element={<BosqueLocalPage />} />
-          <Route path="/retos/:id/publicar" element={<PublicarRetoPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/mi-perfil" element={<ProfilePage />} />
-          <Route path="/aprendizaje" element={<CartillasPage />} />
-          <Route path="/aprendizaje/quizzes" element={<QuizzesPage />} />
-          <Route path="/notificaciones" element={<NotificationsPage />} />
-          <Route path="/servicio" element={<ServicioPage />} />
+        {/* ─── RUTAS PUBLICAS (Auth) ─── */}
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth" element={<AuthPage />} />
         </Route>
 
-        {/* ─── RUTAS PRIVADAS solo ADMIN ─── */}
-        <Route element={<ProtectedRoute requiredRole="admin" />}>
-          <Route path="/admin" element={<AdminPage />} />
-        </Route>
+        {/* ─── RUTAS PUBLICAS con layout (se pueden ver sin login) ─── */}
+        <Route element={<MainLayout />}>
+          <Route path="/fogon" element={<HomePage />} />
+          <Route path="/fogon/:id" element={<PostDetailPage />} />
+          <Route path="/buscar" element={<SearchPage />} />
+          <Route path="/eventos" element={<EventsPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/leaderboard/local" element={<LeaderboardLocalPage />} />
+          <Route path="/retos" element={<RetosPage />} />
+          <Route path="/perfiles/:id" element={<PublicProfilePage />} />
 
-        {/* ─── FALLBACK ─── */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Route>
-    </Routes>
+          {/* ─── RUTAS PRIVADAS (requieren login) ─── */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/bosque" element={<BosqueLocalPage />} />
+            <Route path="/retos/:id/publicar" element={<PublicarRetoPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/mi-perfil" element={<ProfilePage />} />
+            <Route path="/aprendizaje" element={<CartillasPage />} />
+            <Route path="/aprendizaje/quizzes" element={<QuizzesPage />} />
+            <Route path="/notificaciones" element={<NotificationsPage />} />
+            <Route path="/servicio" element={<ServicioPage />} />
+          </Route>
+
+          {/* ─── RUTAS PRIVADAS solo ADMIN ─── */}
+          <Route element={<ProtectedRoute requiredRole="admin" />}>
+            <Route path="/admin" element={<AdminPage />} />
+          </Route>
+
+          {/* ─── FALLBACK ─── */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+      <ConnectionStatus />
+    </>
   )
 }

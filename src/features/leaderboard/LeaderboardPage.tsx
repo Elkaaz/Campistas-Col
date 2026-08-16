@@ -5,7 +5,7 @@ import { profileService } from '../../services'
 import '../../styles/pages.css'
 
 /**
- * LeaderboardPage - Leaderboard Global
+ * LeaderboardPage - Ranking Global
  * Ranking de campistas por XP total
  */
 export default function LeaderboardPage() {
@@ -15,14 +15,14 @@ export default function LeaderboardPage() {
 
   // Cargar usuarios desde Firebase
   useEffect(() => {
-    const loadLeaderboard = async () => {
+    const loadRanking = async () => {
       try {
         setLoading(true)
         setError(null)
         const data = await profileService.getLeaderboard(100)
         setUsers(data)
       } catch (err) {
-        console.error('Error loading leaderboard:', err)
+        console.error('Error loading ranking:', err)
         setError('Error al cargar ranking')
         setUsers([])
       } finally {
@@ -30,14 +30,14 @@ export default function LeaderboardPage() {
       }
     }
 
-    loadLeaderboard()
+    loadRanking()
   }, [])
 
   return (
     <div className="leaderboard-page">
       {/* HEADER */}
       <div className="page-header">
-        <h1>🏆 Leaderboard Global</h1>
+        <h1>🏆 Ranking Global</h1>
         <p className="page-subtitle">Ranking de campistas por XP total</p>
       </div>
 

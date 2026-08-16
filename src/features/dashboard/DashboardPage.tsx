@@ -5,6 +5,9 @@ import { getCampistasByDepartamento } from '../../services/campistaProfileServic
 import { postsService } from '../../services/postsService'
 import { servicioService } from '../../services/servicioService'
 import { notificationsService } from '../../services/notificationsService'
+import { CARTILLAS_LINKS } from '../../config/cartillasLinks'
+import { ROLE_COLORS, ROLE_EMOJIS, ROLE_LABELS } from '../../lib/constants'
+import RoleBadge from '../../components/common/RoleBadge'
 import type { CampistaProfile, Post, Servicio } from '../../types'
 import '../../styles/pages.css'
 
@@ -19,7 +22,7 @@ function getLevelFromXp(xpTotal: number): string {
 
 export default function DashboardPage() {
   const { user, profile, loading: authLoading } = useAuth()
-  const [leaderboard, setLeaderboard] = useState<CampistaProfile[]>([])
+  const [rankingLocal, setRankingLocal] = useState<CampistaProfile[]>([])
   const [myPosts, setMyPosts] = useState<Post[]>([])
   const [myServicios, setMyServicios] = useState<Servicio[]>([])
   const [unreadNotifications, setUnreadNotifications] = useState(0)
@@ -39,7 +42,7 @@ export default function DashboardPage() {
         ])
         
         const sorted = campistasData.sort((a, b) => (b.xpTotal || 0) - (a.xpTotal || 0)).slice(0, 5)
-        setLeaderboard(sorted)
+        setRankingLocal(sorted)
         
         const myPostsList = posts.filter(p => p.uid === user.uid).slice(0, 5)
         setMyPosts(myPostsList)
@@ -161,7 +164,7 @@ export default function DashboardPage() {
           <h2 style={{ fontSize: 18, margin: '0 0 16px' }}>Acciones rápidas</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <Link to="/retos" className="btn-quick-action" style={{ textDecoration: 'none', color: '#fff' }}>🎯 Ver retos disponibles</Link>
-            <Link to="/fogon" className="btn-quick-action" style={{ textDecoration: 'none', color: '#fff' }}>🔥 Ir al Fogón</Link>
+            <Link to="/fogon" className="btn-quick-action" style={{ textDecoration: 'none', color: '#fff' }}>🔥 Ir a la Zona de Fogata</Link>
             <Link to="/servicio" className="btn-quick-action" style={{ textDecoration: 'none', color: '#fff' }}>⏱️ Registrar horas</Link>
             {unreadNotifications > 0 && (
               <Link to="/notificaciones" className="btn-quick-action" style={{ textDecoration: 'none', color: '#fff', background: '#F44336' }}>
@@ -170,6 +173,44 @@ export default function DashboardPage() {
             )}
           </div>
         </article>
+      </section>
+
+      {/* ── INSIGNIAS ── */}
+      <section className="card" style={{
+        background: 'var(--color-surface, rgba(255,255,255,0.05))',
+        border: '1px solid rgba(255,255,255,0.08)',
+        padding: 24,
+        borderRadius: 12,
+        marginBottom: 24
+      }}>
+        <h2 style={{ fontSize: 18, margin: '0 0 16px' }}>🏅 Insignias</h2>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+          {Object.entries(CARTILLAS_LINKS).map(([slug, meta]: [string, any]) => {
+            const isUnlocked = ['tecnicas-campamentiles', 'prevencion-salud'].includes(slug)
+            return (
+              <div key={slug} style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 6,
+                padding: '12px 16px',
+                background: isUnlocked ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.15)',
+                border: `1.5px solid ${isUnlocked ? meta.colorTema : 'rgba(255,255,255,0.08)'}`,
+                borderRadius: 14,
+                minWidth: 100,
+                opacity: isUnlocked ? 1 : 0.6,
+              }}>
+                <span style={{ fontSize: 28 }}>{meta.icono}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, textAlign: 'center', color: isUnlocked ? '#fff' : '#9ca3af' }}>
+                  {meta.nombre.split(' ').slice(0, 2).join(' ')}
+                </span>
+                {isUnlocked && (
+                  <span style={{ fontSize: 10, color: '#4ade80', fontWeight: 700 }}>✓ Desbloqueada</span>
+                )}
+              </div>
+            )
+          })}
+        </div>
       </section>
 
       {/* ── ACTIVIDAD RECIENTE ── */}
@@ -215,13 +256,13 @@ export default function DashboardPage() {
         borderRadius: 12
       }}>
         <h2 style={{ fontSize: 18, margin: '0 0 16px' }}>Top 5 en {profile.departamento || 'tu zona'}</h2>
-        {leaderboard.length === 0 ? (
+        {rankingLocal.length === 0 ? (
           <p style={{ opacity: 0.5, fontSize: 14 }}>Aun no hay campistas en tu zona</p>
         ) : (
           <ul className="leaderboard-list" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {leaderboard.map((entry, index) => (
+            {rankingLocal.map((entry, index) => (
               <li key={entry.uid} className="leaderboard-item" style={{
-                display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: index < leaderboard.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none'
+                display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: index < rankingLocal.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none'
               }}>
                 <span className="rank" style={{ width: 30, fontWeight: 'bold', color: index < 3 ? '#fcd34d' : 'inherit', opacity: index < 3 ? 1 : 0.5 }}>#{index + 1}</span>
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -234,7 +275,10 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="leaderboard-meta" style={{ textAlign: 'right' }}>
-                  <span style={{ display: 'block', fontSize: 12, opacity: 0.6 }}>{(entry.nivelActual || 'semilla').toUpperCase()}</span>
+                  <RoleBadge role={entry.role} size="sm" />
+                  <span style={{ display: 'block', fontSize: 12, opacity: 0.6, marginTop: 4 }}>
+                    {ROLE_EMOJIS[entry.role] || '🎖️'} {(entry.nivelActual || 'semilla').toUpperCase()}
+                  </span>
                   <strong style={{ color: 'var(--color-primary, #10b981)' }}>{entry.xpTotal || 0} XP</strong>
                 </div>
               </li>

@@ -1,9 +1,11 @@
 ﻿import { FormEvent, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { registerUser } from '../../services/authService'
+import { useCloudinaryUpload } from '../../hooks/useCloudinaryUpload'
 
 export default function RegisterForm() {
   const navigate = useNavigate()
+  const { upload, uploading, error: uploadError } = useCloudinaryUpload('avatar')
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -12,6 +14,7 @@ export default function RegisterForm() {
     confirmPassword: '',
     departamento: '',
     municipio: '',
+    avatarFile: null as File | null,
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,6 +34,11 @@ export default function RegisterForm() {
 
     setLoading(true)
     try {
+      let avatarUrl = ''
+      if (form.avatarFile) {
+        avatarUrl = await upload(form.avatarFile)
+      }
+
       await registerUser(form.email, form.password, {
         firstName: form.firstName,
         lastName: form.lastName,
@@ -40,10 +48,10 @@ export default function RegisterForm() {
         nivelActual: 'semilla',
         xpTotal: 0,
         perfilCompleto: false,
+        avatarUrl,
       })
 
-      // Redirigir al home despues del registro exitoso
-      navigate('/', { replace: true })
+      navigate('/fogon', { replace: true })
     } catch (err: any) {
       console.error('[RegisterForm]', err)
       if (err.code === 'auth/email-already-in-use') {
@@ -53,7 +61,7 @@ export default function RegisterForm() {
       } else if (err.code === 'auth/invalid-email') {
         setError('El correo no es valido')
       } else {
-        setError('Error al crear la cuenta. Intenta de nuevo')
+        setError(err instanceof Error ? err.message : 'Error al crear la cuenta. Intenta de nuevo')
       }
     } finally {
       setLoading(false)
@@ -62,7 +70,7 @@ export default function RegisterForm() {
 
   return (
     <form className="form-grid" onSubmit={handleSubmit}>
-      {error && (
+      {(error || uploadError) && (
         <div style={{
           background: 'rgba(239,68,68,0.15)',
           border: '1px solid rgba(239,68,68,0.4)',
@@ -71,7 +79,7 @@ export default function RegisterForm() {
           color: '#fca5a5',
           fontSize: 14,
         }}>
-          ⚠️ {error}
+          ⚠️ {error || uploadError}
         </div>
       )}
 
@@ -82,7 +90,7 @@ export default function RegisterForm() {
           onChange={(e) => setForm({ ...form, firstName: e.target.value })}
           placeholder="Tu nombre"
           required
-          disabled={loading}
+          disabled={loading || uploading}
         />
       </label>
 
@@ -93,7 +101,7 @@ export default function RegisterForm() {
           onChange={(e) => setForm({ ...form, lastName: e.target.value })}
           placeholder="Tu apellido"
           required
-          disabled={loading}
+          disabled={loading || uploading}
         />
       </label>
 
@@ -104,7 +112,7 @@ export default function RegisterForm() {
           onChange={(e) => setForm({ ...form, departamento: e.target.value })}
           placeholder="Ej: Antioquia"
           required
-          disabled={loading}
+          disabled={loading || uploading}
         />
       </label>
 
@@ -115,8 +123,19 @@ export default function RegisterForm() {
           onChange={(e) => setForm({ ...form, municipio: e.target.value })}
           placeholder="Ej: Medellin"
           required
-          disabled={loading}
+          disabled={loading || uploading}
         />
+      </label>
+
+      <label>
+        Avatar
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setForm({ ...form, avatarFile: e.target.files?.[0] || null })}
+          disabled={loading || uploading}
+        />
+        {uploading && <small style={{ opacity: 0.7 }}>Subiendo avatar...</small>}
       </label>
 
       <label>
@@ -127,7 +146,7 @@ export default function RegisterForm() {
           onChange={(e) => setForm({ ...form, email: e.target.value })}
           placeholder="campista@email.com"
           required
-          disabled={loading}
+          disabled={loading || uploading}
         />
       </label>
 
@@ -139,7 +158,7 @@ export default function RegisterForm() {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           placeholder="Minimo 6 caracteres"
           required
-          disabled={loading}
+          disabled={loading || uploading}
           minLength={6}
         />
       </label>
@@ -152,14 +171,15 @@ export default function RegisterForm() {
           onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
           placeholder="Repite tu contraseña"
           required
-          disabled={loading}
+          disabled={loading || uploading}
           minLength={6}
         />
       </label>
 
-      <button className="primary-button" type="submit" disabled={loading}>
-        {loading ? 'Creando cuenta...' : 'Unirme al campamento 🌱'}
+      <button className="primary-button" type="submit" disabled={loading || uploading}>
+        {loading || uploading ? 'Creando cuenta...' : 'Unirme al campamento 🌱'}
       </button>
     </form>
   )
 }
+

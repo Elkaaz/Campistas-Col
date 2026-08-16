@@ -36,6 +36,7 @@ export interface User {
   // SOCIAL
   biografia?: string
   habilidadEspecial?: string
+  redesSociales?: Record<string, string> // ej: { instagram: '@xxx', tiktok: '@xxx' }
   seguidores?: number
   siguiendo?: number
   

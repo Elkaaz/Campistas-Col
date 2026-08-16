@@ -23,6 +23,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   const nivel = profile?.nivelActual || 'semilla'
   const levelColor = LEVEL_COLORS[nivel] ?? '#10b981'
@@ -83,7 +84,7 @@ export default function Navbar() {
         {/* NAV ITEMS */}
         <div className="navbar-items">
           {NAV_ITEMS.map((item) => {
-            const isActive = location.pathname === item.to
+            const isActive = location.pathname === item.to || location.pathname.startsWith(item.to + '/')
             return (
               <Link
                 key={item.to}
@@ -92,7 +93,7 @@ export default function Navbar() {
                 title={item.label}
               >
                 <span className="nav-icon">{item.icon}</span>
-                <span className="nav-label">{item.label.split(' ')[0]}</span>
+                <span className="nav-label">{item.label.split(' ').slice(1).join(' ').replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim() || item.label}</span>
               </Link>
             )
           })}
@@ -195,17 +196,64 @@ export default function Navbar() {
               </div>
             </>
           ) : (
-            <Link
-              to="/auth"
-              style={{
-                padding: '7px 16px', borderRadius: 20,
-                background: 'rgba(255,255,255,0.2)', color: '#fff',
-                textDecoration: 'none', fontSize: 13, fontWeight: 600,
-                border: '1px solid rgba(255,255,255,0.3)',
-              }}
-            >
-              Entrar 🏕️
-            </Link>
+            <>
+              <button
+                onClick={() => setShowAuthModal(true)}
+                style={{
+                  padding: '7px 16px', borderRadius: 20,
+                  background: 'rgba(255,255,255,0.2)', color: '#fff',
+                  textDecoration: 'none', fontSize: 13, fontWeight: 600,
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  cursor: 'pointer',
+                }}
+              >
+                🏕️ Semilla
+              </button>
+              
+              {/* Modal para usuarios no autenticados */}
+              {showAuthModal && (
+                <div style={{
+                  position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                  background: 'rgba(0,0,0,0.7)', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+                }} onClick={() => setShowAuthModal(false)}>
+                  <div style={{
+                    background: '#fff', borderRadius: 16, padding: 32,
+                    maxWidth: 400, textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                  }} onClick={(e) => e.stopPropagation()}>
+                    <h2 style={{ margin: '0 0 12px 0', fontSize: 24, color: '#1a1a2e' }}>
+                      🔥 ¡Bienvenido a Fogata!
+                    </h2>
+                    <p style={{ margin: '0 0 24px 0', color: '#666', fontSize: 15 }}>
+                      Ya tienes cuenta? Ve a iniciar sesión y sube de nivel con otros campistas
+                    </p>
+                    
+                    <div style={{ display: 'flex', gap: 12, flexDirection: 'column' }}>
+                      <button
+                        onClick={() => { setShowAuthModal(false); navigate('/auth?mode=login') }}
+                        style={{
+                          padding: '12px 24px', borderRadius: 8,
+                          background: '#10b981', color: '#fff', border: 'none',
+                          fontSize: 15, fontWeight: 600, cursor: 'pointer',
+                        }}
+                      >
+                        Iniciar Sesión
+                      </button>
+                      <button
+                        onClick={() => { setShowAuthModal(false); navigate('/auth?mode=register') }}
+                        style={{
+                          padding: '12px 24px', borderRadius: 8,
+                          background: '#e2e8f0', color: '#1a1a2e', border: 'none',
+                          fontSize: 15, fontWeight: 600, cursor: 'pointer',
+                        }}
+                      >
+                        Crear Cuenta
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 

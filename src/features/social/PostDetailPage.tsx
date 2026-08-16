@@ -63,7 +63,7 @@ export default function PostDetailPage() {
 
   return (
     <div className="post-detail-page">
-      <Link to="/fogon" className="back-link">← Volver al Fogón</Link>
+      <Link to="/fogon" className="back-link">← Volver a la Zona de Fogata</Link>
 
       <PostCard post={post} />
 

@@ -17,7 +17,7 @@ export default function LoginForm() {
     try {
       const user = await loginUser(email, password)
       if (user) {
-        navigate('/', { replace: true })
+        navigate('/fogon', { replace: true })
       }
     } catch (err: any) {
       console.error('[LoginForm]', err)

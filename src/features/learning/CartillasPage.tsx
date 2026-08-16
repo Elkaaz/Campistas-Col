@@ -2,10 +2,22 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { CARTILLAS_LINKS, getCartillaColor, getCartillaIcon, getCartillaName } from '../../config/cartillasLinks'
+
+const getCartillaLink = (slug: string): string => {
+  const cartilla = CARTILLAS_LINKS[slug as keyof typeof CARTILLAS_LINKS]
+  return cartilla?.enlacePdf || '#'
+}
 import type { Cartilla, CartillaProgreso } from '../../types'
 import '../../styles/pages.css'
 
 const CARTILLAS_KEYS = Object.keys(CARTILLAS_LINKS) as Array<keyof typeof CARTILLAS_LINKS>
+
+const ROL_LABELS: Record<string, string> = {
+  campista: 'Campista',
+  lider_bosque: 'Líder de Bosque',
+  comite_departamental: 'Comité Departamental',
+  admin: 'Admin',
+}
 
 export default function CartillasPage() {
   const { user, profile } = useAuth()
@@ -16,22 +28,29 @@ export default function CartillasPage() {
   useEffect(() => {
     const cargar = async () => {
       try {
-        const cartillasData: Cartilla[] = CARTILLAS_KEYS.map((slug, index) => ({
-          cartillaId: slug,
-          nombre: getCartillaName(slug),
-          slug: slug as string,
-          descripcion: `Material de formación sobre ${getCartillaName(slug).toLowerCase()}`,
-          contenido: '',
-          categoria: 'formacion',
-          icono: getCartillaIcon(slug),
-          colorTema: getCartillaColor(slug),
-          orden: index + 1,
-          seccion: 'formacion',
-          competidosTotal: 0,
-          creadoPor: 'admin',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }))
+        const cartillasData: Cartilla[] = CARTILLAS_KEYS.map((slug) => {
+          const meta = CARTILLAS_LINKS[slug]
+          return {
+            cartillaId: slug,
+            nombre: getCartillaName(slug),
+            slug: slug as string,
+            descripcion: `Material de formación sobre ${getCartillaName(slug).toLowerCase()}`,
+            contenido: '',
+            categoria: 'formacion',
+            icono: getCartillaIcon(slug),
+            colorTema: getCartillaColor(slug),
+            orden: 0,
+            seccion: 'formacion',
+            competidosTotal: 0,
+            creadoPor: 'admin',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            xpAlCompletar: (meta as any).xpAlCompletar ?? 0,
+            insigniaOtorgada: (meta as any).insigniaOtorgada,
+            nivelMinimo: (meta as any).nivelMinimo ?? 'semilla',
+            requisitosPrevios: (meta as any).requisitosPrevios ?? [],
+          }
+        })
         setCartillas(cartillasData)
 
         if (user) {
@@ -62,9 +81,9 @@ export default function CartillasPage() {
   return (
     <div className="cartillas-page">
       <div className="page-header">
-        <h1>📚 Mi Aprendizaje</h1>
+        <h1>📚 Formación</h1>
         <p className="page-subtitle">
-          Material de formación campamentil para tu crecimiento personal
+          Cartillas de formación campamentil — lee, aprende y sube de nivel
         </p>
       </div>
 
@@ -73,6 +92,13 @@ export default function CartillasPage() {
           const prog = progreso[cartilla.cartillaId]
           const isCompleted = prog?.completada
           const progressPercent = prog?.porcentajeLeido || 0
+          const meta = CARTILLAS_LINKS[cartilla.slug as keyof typeof CARTILLAS_LINKS] as any
+          const tiempoMin = meta?.tiempoEstimadoMin ?? 15
+          const nivelMin = cartilla.nivelMinimo ?? 'semilla'
+          const rolHabilita = meta?.rolHabilita
+          const insignia = cartilla.insigniaOtorgada
+          const xp = cartilla.xpAlCompletar ?? 0
+          const prereqs = cartilla.requisitosPrevios ?? []
 
           return (
             <div
@@ -93,6 +119,38 @@ export default function CartillasPage() {
                 <h3 className="cartilla-title">{cartilla.nombre}</h3>
                 <p className="cartilla-description">{cartilla.descripcion}</p>
 
+                <div className="cartilla-meta">
+                  <span className="cartilla-meta-badge" style={{ background: cartilla.colorTema }}>
+                    🎖️ Nivel mínimo: {nivelMin}
+                  </span>
+                  {rolHabilita && (
+                    <span className="cartilla-meta-badge" style={{ background: '#4169E1' }}>
+                      👑 Habilita: {ROL_LABELS[rolHabilita] ?? rolHabilita}
+                    </span>
+                  )}
+                  {insignia && (
+                    <span className="cartilla-meta-badge" style={{ background: '#f59e0b' }}>
+                      🏅 Insignia: {insignia}
+                    </span>
+                  )}
+                  <span className="cartilla-meta-badge" style={{ background: '#10b981' }}>
+                    ⭐ +{xp} XP
+                  </span>
+                </div>
+
+                {prereqs.length > 0 && (
+                  <div className="cartilla-prereqs">
+                    <small>Requisitos previos:</small>
+                    <div className="prereq-chips">
+                      {prereqs.map((slug) => (
+                        <span key={slug} className="prereq-chip" style={{ borderColor: getCartillaColor(slug) }}>
+                          {getCartillaIcon(slug)} {getCartillaName(slug)}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="cartilla-progress">
                   <div className="progress-track">
                     <div
@@ -108,13 +166,13 @@ export default function CartillasPage() {
 
                 <div className="cartilla-stats">
                   <span>📖 Lectura</span>
-                  <span>⏱️ ~15 min</span>
+                  <span>⏱️ ~{tiempoMin} min</span>
                 </div>
               </div>
 
               <div className="cartilla-footer">
                 <a
-                  href={getCartillaLink(cartilla.slug)}
+                  href={(CARTILLAS_LINKS[cartilla.slug as keyof typeof CARTILLAS_LINKS] as any)?.enlacePdf || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-leer"

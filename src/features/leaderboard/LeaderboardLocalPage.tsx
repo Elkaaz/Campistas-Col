@@ -38,7 +38,7 @@ export default function LeaderboardLocalPage() {
         const sorted = data.sort((a, b) => (b.xpTotal || 0) - (a.xpTotal || 0))
         setCampistas(sorted)
       } catch (err) {
-        console.error('[LeaderboardLocalPage]', err)
+        console.error('[RankingLocalPage]', err)
         setCampistas([])
       } finally {
         setLoading(false)

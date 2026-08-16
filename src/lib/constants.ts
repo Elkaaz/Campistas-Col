@@ -81,17 +81,17 @@ export const RETO_TYPES = {
 
 // NAV ITEMS PRINCIPALES (Desktop)
 export const NAV_ITEMS = [
-  { label: 'El Fogón 🔥', to: '/fogon', icon: '🔥' },
+  { label: 'Zona de Fogata 🔥', to: '/fogon', icon: '🔥' },
   { label: 'Mi Bosque 🌳', to: '/bosque', icon: '🌳' },
-  { label: 'Mi Aprendizaje 📚', to: '/aprendizaje', icon: '📚' },
+  { label: 'Formación 📚', to: '/aprendizaje', icon: '📚' },
   { label: 'Retos ⛰️', to: '/retos', icon: '⛰️' },
   { label: 'Niveles 🎖️', to: '/niveles', icon: '🎖️' },
-  { label: 'Leaderboard 🏆', to: '/leaderboard', icon: '🏆' },
+  { label: 'Ranking 🏆', to: '/leaderboard', icon: '🏆' },
 ] as const
 
 // NAV ITEMS BOTTOM (Mobile)
 export const NAV_ITEMS_BOTTOM = [
-  { label: 'Fogón', to: '/fogon', icon: '🔥' },
+  { label: 'Fogata', to: '/fogon', icon: '🔥' },
   { label: 'Bosque', to: '/bosque', icon: '🌳' },
   { label: 'Retos', to: '/retos', icon: '⛰️' },
   { label: 'Perfil', to: '/mi-perfil', icon: '👤' },
@@ -197,3 +197,35 @@ export const EMOJIS = {
   reto: '⛰️',
   campista: '🏕️',
 } as const
+
+// ROLES
+export const ROLE_COLORS: Record<string, string> = {
+  campista: '#10b981',
+  lider_bosque: '#f59e0b',
+  comite_departamental: '#3b82f6',
+  admin: '#ef4444',
+}
+
+export const ROLE_EMOJIS: Record<string, string> = {
+  campista: '🏕️',
+  lider_bosque: '👑',
+  comite_departamental: '⭐',
+  admin: '🛡️',
+}
+
+export const ROLE_LABELS: Record<string, string> = {
+  campista: 'Campista',
+  lider_bosque: 'Líder de Bosque',
+  comite_departamental: 'Comité Departamental',
+  admin: 'Admin',
+}
+
+export const NIVEL_EMOJIS: Record<string, string> = {
+  semilla: '🌱',
+  raiz: '🌿',
+  tallo: '🪵',
+  hoja: '🍃',
+  flor: '🌸',
+  fruto: '🌳',
+  honorario: '⭐',
+}

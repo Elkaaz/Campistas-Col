@@ -8,7 +8,7 @@ export default function HomePage() {
         <li>XP y niveles</li>
         <li>Retos y validación</li>
         <li>Quizzes y cartillas</li>
-        <li>Leaderboard</li>
+        <li>Ranking</li>
       </ul>
     </div>
   )

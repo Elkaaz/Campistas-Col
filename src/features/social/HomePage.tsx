@@ -100,7 +100,7 @@ export default function HomePage() {
       <div className="fogon-hero" style={{ backgroundImage: `url(${heroBg})` }}>
         <div className="fogon-hero-overlay" />
         <div className="fogon-hero-content">
-          <h1>🔥 El Fogón</h1>
+          <h1>🔥 Zona de Fogata</h1>
           <p>Muro de retos completados por campistas de toda Colombia</p>
           <Link to="/retos" className="fogon-hero-btn">Ver retos disponibles →</Link>
         </div>
@@ -137,7 +137,7 @@ export default function HomePage() {
           <div className="empty-fogon">
             <img src="/images/backgrounds/foto-campistas-1.jpg" alt="Campistas" className="empty-fogon-img" />
             <div className="empty-fogon-text">
-              <h3>¡El fogón está esperando chispas! 🔥</h3>
+              <h3>¡La Zona de Fogata está esperando chispas! 🔥</h3>
               <p>Sé el primero en publicar un reto completado</p>
               <Link to="/retos" className="btn-primary">Ver retos →</Link>
             </div>

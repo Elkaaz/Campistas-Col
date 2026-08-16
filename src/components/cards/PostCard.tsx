@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Post } from '../../types'
 import { getRetoTypeIcon, getRetoTypeLabel } from '../../lib/colors'
+import RoleBadge from '../common/RoleBadge'
 import '../../styles/components.css'
 
 interface PostCardProps {
@@ -39,6 +40,7 @@ export default function PostCard({
                   {post.autoresNivel}
                 </span>
                 <span className="author-location">📍 {post.municipio}</span>
+                {(post as any).autorRole && <RoleBadge role={(post as any).autorRole} size="sm" />}
               </div>
             </div>
           </div>
@@ -76,7 +78,7 @@ export default function PostCard({
         <div className="validation-banner">
           <span className="validation-icon">✅</span>
           <span className="validation-text">
-            Validado por {post.validadorNombre} · +{post.xpAsignado} XP
+            Verificado por {post.validadorNombre} {(post as any).validadorRole && <RoleBadge role={(post as any).validadorRole} size="sm" />} · +{post.xpAsignado} XP
           </span>
         </div>
       )}

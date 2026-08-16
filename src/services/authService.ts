@@ -2,9 +2,11 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
   type User,
 } from 'firebase/auth'
-import { doc, setDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 import type { CampistaProfile } from '../types'
 
@@ -19,6 +21,7 @@ export async function registerUser(email: string, password: string, profile: Par
     email: result.user.email || email,
     firstName: profile.firstName || '',
     lastName: profile.lastName || '',
+    avatarUrl: profile.avatarUrl || '',
     role: profile.role || 'campista',
     departamento: profile.departamento || '',
     municipio: profile.municipio || '',
@@ -44,6 +47,45 @@ export async function loginUser(email: string, password: string): Promise<User |
 
   const result = await signInWithEmailAndPassword(auth, email, password)
   return result.user
+}
+
+export async function loginWithGoogle(): Promise<User | null> {
+  if (!auth || !db) return null
+
+  const provider = new GoogleAuthProvider()
+  const result = await signInWithPopup(auth, provider)
+  const user = result.user
+
+  const profileRef = doc(db, 'profiles', user.uid)
+  const profileSnap = await getDoc(profileRef)
+
+  if (!profileSnap.exists()) {
+    const newProfile: CampistaProfile = {
+      uid: user.uid,
+      displayName: user.displayName || 'Campista Google',
+      email: user.email || '',
+      firstName: user.displayName?.split(' ')[0] || '',
+      lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+      avatarUrl: user.photoURL || '',
+      role: 'campista',
+      departamento: '',
+      municipio: '',
+      nivelActual: 'semilla',
+      xpTotal: 0,
+      perfilCompleto: false,
+      createdAt: new Date().toISOString(),
+    }
+
+    await setDoc(profileRef, newProfile)
+    await setDoc(doc(db, 'users', user.uid), {
+      uid: user.uid,
+      email: user.email,
+      role: 'campista',
+      createdAt: new Date().toISOString(),
+    })
+  }
+
+  return user
 }
 
 export async function logoutUser(): Promise<void> {
