@@ -18,22 +18,27 @@ Una red social moderna y gamificada construida con **React + TypeScript + Fireba
 - **CSS moderno** con animaciones suaves
 
 ### 🔥 Red Social (El Fogón)
-- Feed de publicaciones validadas de retos completados
+- **Feed en tiempo real** - actualizaciones instantáneas con onSnapshot()
+- Publicaciones validadas de retos completados
 - Filtros por tipo de reto (Nudos, Refugios, Fogatas, Huertas, Primeros Auxilios)
 - Reacciones con emojis: 🔥 (Fogata) y 🪢 (Nudo)
+- **Comentarios en vivo** - nuevos comentarios aparecen al instante
 - Contador de interacciones en tiempo real
 
 ### 🏆 Sistema de Gamificación
 - **6 Niveles** progresivos: Semilla → Raíz → Tallo → Hoja → Flor → Fruto
 - **Experiencia (XP)** que otorgan los retos validados
-- **Leaderboard global** y local por municipio
+- **Leaderboard global en tiempo real** - actualización instantánea de rankings
+- **Leaderboard local** por municipio
 - **Medallas** para top 3 usuarios (🥇🥈🥉)
 
-### 🎖️ Sistema de Retos
+### 🎖️ Sistema de Retos Validados
 - **5 tipos de retos**: Fogata, Nudo, Refugio, Huerta, Primeros Auxilios
-- **Publicación de evidencia** con fotos/videos
-- **Validación por líderes** con asignación de XP
-- **Sistema de comentarios** en evaluación
+- **Publicación de evidencia** con fotos/videos vía Cloudinary
+- **Validación por líderes/admins** con asignación automática de XP
+- **Comentarios en evaluación** para feedback al campista
+- **Panel de admin en tiempo real** - retos pendientes actualizan al instante
+- Notificaciones automáticas a usuarios cuando sus retos son validados
 
 ### 📚 Cartillas de Formación
 - **8 cartillas** de temas campamentiles
@@ -169,10 +174,10 @@ Preview:     npm run preview
 - **CSS3** - Styling (sin frameworks, CSS puro)
 
 ### Backend (Firebase)
-- **Firestore** - Base de datos NoSQL
-- **Firebase Auth** - Autenticación (próximamente)
-- **Cloud Storage** - Almacenamiento de imágenes (próximamente)
-- **Cloud Functions** - Lógica backend (próximamente)
+- **Firestore** - Base de datos NoSQL con real-time listeners
+- **Firebase Auth** - Autenticación email/password + Google
+- **Cloud Storage** (via Cloudinary) - Almacenamiento de imágenes (avatars, evidencia retos)
+- **Firestore Rules** - Seguridad y permisos por rol
 
 ### DevTools
 - **ESLint** - Code linting
@@ -194,22 +199,31 @@ Preview:     npm run preview
 
 ### Servicios Firebase
 ```typescript
-// Posts
-postsService.getFeedSocial()
-postsService.getPostsByType(type)
-postsService.createPost(...)
-postsService.validatePost(...)
+// Posts (con real-time listeners)
+postsService.subscribeFeedSocial(callback)        // Feed en vivo
+postsService.subscribePostsByType(type, callback) // Por categoría
+postsService.subscribePendingPosts(callback)      // Retos pendientes (admin)
+postsService.validatePost(postId, uid, xp, comentario)  // Validar reto
+postsService.rejectPost(postId, uid, comentario)       // Rechazar reto
+
+// Comments (con real-time listeners)
+commentsService.subscribeCommentsByPostId(postId, callback)  // Comentarios en vivo
+
+// Notifications (con real-time listeners)
+notificationsService.subscribeNotifications(uid, callback)  // Todas
+notificationsService.subscribeUnreadNotifications(uid, callback)  // No leídas
+
+// Leaderboard (con real-time listeners)
+profileService.subscribeLeaderboard(callback)    // Ranking global en vivo
 
 // Interacciones
-interactionsService.addInteraction(...)
+interactionsService.addInteraction(uid, nombre, avatar, postId, tipo)
 interactionsService.removeInteraction(...)
-interactionsService.hasUserReacted(...)
 
 // Perfiles
 profileService.getProfileByUid(uid)
-profileService.getLeaderboard()
-profileService.getLeaderboardLocal(municipio)
-profileService.addXp(uid, amount)
+profileService.addXp(uid, amount)  // Aumenta XP y actualiza nivel
+profileService.updateProfile(uid, updates)
 ```
 
 ---
@@ -243,9 +257,9 @@ Background:     #F5F5F5 (Gris claro)
 - **Servicios**: 3 servicios Firebase con 18+ métodos
 - **Tipos**: 10+ interfaces TypeScript
 - **Páginas**: 7 rutas principales
-- **Build Size**: 656.52 KB gzipped
-- **Build Time**: 4.04s
-- **LOC**: ~8000 líneas de código
+- **Build Size**: 813.98 KB gzipped (215.90 KB)
+- **Build Time**: 7.62s
+- **LOC**: ~9000 líneas de código
 
 ---
 
@@ -277,6 +291,15 @@ Background:     #F5F5F5 (Gris claro)
 - [x] Servicios conectados a páginas
 - [x] Documentación completa
 - [x] Deploy a Firebase Hosting
+
+### FASE 5-9 - Real-time Features y Validación
+- [x] Real-time listeners (onSnapshot) en HomePage, Leaderboard, Comments, Notifications
+- [x] Avatar upload con Cloudinary
+- [x] Evidence upload en PublicarRetoPage
+- [x] AdminPage rediseñado con real-time retos pendientes
+- [x] Sistema de validación: aprobar/rechazar retos con comentarios
+- [x] XP automático: asignación y actualización de niveles
+- [x] Notificaciones en tiempo real
 
 ---
 
