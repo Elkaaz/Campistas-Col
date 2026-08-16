@@ -4,9 +4,13 @@ import RegisterForm from './RegisterForm'
 import LoginForm from './LoginForm'
 import { loginWithGoogle } from '../../services/authService'
 
-export default function AuthPage() {
+interface AuthPageProps {
+  initialMode?: 'login' | 'register'
+}
+
+export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
   const navigate = useNavigate()
-  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [googleError, setGoogleError] = useState<string | null>(null)
 
