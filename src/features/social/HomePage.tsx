@@ -20,50 +20,36 @@ export default function HomePage() {
   const [posts, setPosts] = useState<Post[]>([])
   const [selectedFilter, setFilter] = useState<RetoTipo | 'todos'>('todos')
   const [loading, setLoading] = useState(true)
-  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [hasMore, setHasMore] = useState(true)
   const [heroBg] = useState(() => HERO_PHOTOS[Math.floor(Math.random() * HERO_PHOTOS.length)])
 
+  // Real-time listener for feed
   useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true); setError(null); setHasMore(true)
-        const data = selectedFilter === 'todos'
-          ? await postsService.getFeedSocial(PAGE_SIZE)
-          : await postsService.getPostsByType(selectedFilter, PAGE_SIZE)
-        setPosts(data)
-        setHasMore(data.length >= PAGE_SIZE)
-      } catch {
-        setError('Error al cargar publicaciones'); setPosts([])
-      } finally { setLoading(false) }
-    }
-    load()
-  }, [selectedFilter])
+    setLoading(true)
+    setError(null)
 
-  const loadMore = async () => {
-    if (loadingMore || !hasMore) return
+    let unsubscribe: () => void = () => {}
+
     try {
-      setLoadingMore(true)
-      const next = selectedFilter === 'todos'
-        ? await postsService.getFeedSocial(posts.length + PAGE_SIZE)
-        : await postsService.getPostsByType(selectedFilter, posts.length + PAGE_SIZE)
-      const newPosts = next.slice(posts.length)
-      setPosts(prev => [...prev, ...newPosts])
-      setHasMore(newPosts.length >= PAGE_SIZE)
-    } catch {
-      console.error('Error loading more posts')
-    } finally {
-      setLoadingMore(false)
+      // Subscribe to real-time updates
+      unsubscribe = (selectedFilter === 'todos'
+        ? postsService.subscribeFeedSocial((data) => {
+            setPosts(data)
+            setLoading(false)
+          }, PAGE_SIZE)
+        : postsService.subscribePostsByType(selectedFilter, (data) => {
+            setPosts(data)
+            setLoading(false)
+          }, PAGE_SIZE)) as () => void
+    } catch (err) {
+      console.error('Error setting up listener:', err)
+      setError('Error al cargar publicaciones')
+      setLoading(false)
     }
-  }
 
-  const reload = async () => {
-    const data = selectedFilter === 'todos'
-      ? await postsService.getFeedSocial(posts.length)
-      : await postsService.getPostsByType(selectedFilter, posts.length)
-    setPosts(data)
-  }
+    // Cleanup subscription on unmount or filter change
+    return () => unsubscribe()
+  }, [selectedFilter])
 
   const handleFogata = async (postId: string) => {
     if (!user) return
@@ -75,7 +61,7 @@ export default function HomePage() {
         postId,
         'fogata'
       )
-      await reload()
+      // Real-time listener will auto-update
     } catch (e) { console.error(e) }
   }
 
@@ -89,7 +75,7 @@ export default function HomePage() {
         postId,
         'nudo'
       )
-      await reload()
+      // Real-time listener will auto-update
     } catch (e) { console.error(e) }
   }
 
@@ -143,26 +129,11 @@ export default function HomePage() {
             </div>
           </div>
         ) : (
-          <>
-            <div className="posts-grid">
-              {posts.map((post) => (
-                <PostCard key={post.postId} post={post} onFogata={handleFogata} onNudo={handleNudo} />
-              ))}
-            </div>
-
-            {hasMore && (
-              <div style={{ textAlign: 'center', marginTop: 24 }}>
-                <button
-                  onClick={loadMore}
-                  disabled={loadingMore}
-                  className="btn-primary"
-                  style={{ padding: '12px 32px' }}
-                >
-                  {loadingMore ? 'Cargando...' : 'Cargar más publicaciones'}
-                </button>
-              </div>
-            )}
-          </>
+          <div className="posts-grid">
+            {posts.map((post) => (
+              <PostCard key={post.postId} post={post} onFogata={handleFogata} onNudo={handleNudo} />
+            ))}
+          </div>
         )}
       </div>
 

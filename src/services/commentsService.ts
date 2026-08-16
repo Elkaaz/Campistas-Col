@@ -3,6 +3,7 @@ import {
   query,
   where,
   getDocs,
+  onSnapshot,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -10,11 +11,41 @@ import {
   Timestamp,
   orderBy,
   increment,
+  Unsubscribe,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { Comment, CreateCommentInput } from '../types'
 
 export const commentsService = {
+  /**
+   * Subscribe to comments in real-time
+   */
+  subscribeCommentsByPostId(postId: string, callback: (comments: Comment[]) => void): Unsubscribe {
+    if (!db) return () => {}
+    try {
+      const q = query(
+        collection(db, 'comments'),
+        where('postId', '==', postId),
+        orderBy('createdAt', 'asc')
+      )
+      return onSnapshot(q, (snapshot) => {
+        const comments = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          commentId: doc.id,
+          createdAt: doc.data().createdAt?.toDate() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+        } as Comment))
+        callback(comments)
+      })
+    } catch (error) {
+      console.error('Error subscribing to comments:', error)
+      return () => {}
+    }
+  },
+
+  /**
+   * Legacy: Get comments one-time
+   */
   async getCommentsByPostId(postId: string): Promise<Comment[]> {
     if (!db) return []
     try {

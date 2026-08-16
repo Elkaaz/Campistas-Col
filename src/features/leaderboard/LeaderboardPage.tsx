@@ -6,31 +6,34 @@ import '../../styles/pages.css'
 
 /**
  * LeaderboardPage - Ranking Global
- * Ranking de campistas por XP total
+ * Ranking de campistas por XP total (REAL-TIME)
  */
 export default function LeaderboardPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Cargar usuarios desde Firebase
+  // Real-time listener for leaderboard
   useEffect(() => {
-    const loadRanking = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await profileService.getLeaderboard(100)
+    setLoading(true)
+    setError(null)
+
+    let unsubscribe: () => void = () => {}
+
+    try {
+      // Subscribe to real-time leaderboard updates
+      unsubscribe = profileService.subscribeLeaderboard((data) => {
         setUsers(data)
-      } catch (err) {
-        console.error('Error loading ranking:', err)
-        setError('Error al cargar ranking')
-        setUsers([])
-      } finally {
         setLoading(false)
-      }
+      }, 100) as () => void
+    } catch (err) {
+      console.error('Error setting up leaderboard listener:', err)
+      setError('Error al cargar ranking')
+      setLoading(false)
     }
 
-    loadRanking()
+    // Cleanup subscription on unmount
+    return () => unsubscribe()
   }, [])
 
   return (

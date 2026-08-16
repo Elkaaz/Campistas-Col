@@ -5,10 +5,12 @@ import {
   orderBy,
   limit,
   getDocs,
+  onSnapshot,
   addDoc,
   updateDoc,
   doc,
   Timestamp,
+  Unsubscribe,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { Post, RetoTipo, CreatePostInput } from '../types'
@@ -18,7 +20,86 @@ import { Post, RetoTipo, CreatePostInput } from '../types'
  */
 export const postsService = {
   /**
-   * Obtener feed social (posts validados)
+   * Obtener feed social (posts validados) - con real-time listener
+   */
+  subscribeFeedSocial(callback: (posts: Post[]) => void, limitNum = 20): Unsubscribe {
+    try {
+      const q = query(
+        collection(db, 'posts'),
+        where('estado', '==', 'validado'),
+        orderBy('createdAt', 'desc'),
+        limit(limitNum)
+      )
+      return onSnapshot(q, (snapshot) => {
+        const posts = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          postId: doc.id,
+          createdAt: doc.data().createdAt?.toDate() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+        } as Post))
+        callback(posts)
+      })
+    } catch (error) {
+      console.error('Error subscribing to feed:', error)
+      return () => {}
+    }
+  },
+
+  /**
+   * Obtener posts por tipo de reto - con real-time listener
+   */
+  subscribePostsByType(type: RetoTipo, callback: (posts: Post[]) => void, limitNum = 20): Unsubscribe {
+    try {
+      const q = query(
+        collection(db, 'posts'),
+        where('estado', '==', 'validado'),
+        where('retoTipo', '==', type),
+        orderBy('createdAt', 'desc'),
+        limit(limitNum)
+      )
+      return onSnapshot(q, (snapshot) => {
+        const posts = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          postId: doc.id,
+          createdAt: doc.data().createdAt?.toDate() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+        } as Post))
+        callback(posts)
+      })
+    } catch (error) {
+      console.error('Error subscribing to posts by type:', error)
+      return () => {}
+    }
+  },
+
+  /**
+   * Obtener posts pendientes de validación (para líderes) - con real-time listener
+   */
+  subscribePendingPosts(callback: (posts: Post[]) => void, limitNum = 50): Unsubscribe {
+    try {
+      const q = query(
+        collection(db, 'posts'),
+        where('estado', '==', 'pendiente_validacion'),
+        orderBy('createdAt', 'asc'),
+        limit(limitNum)
+      )
+      return onSnapshot(q, (snapshot) => {
+        const posts = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          postId: doc.id,
+          createdAt: doc.data().createdAt?.toDate() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+        } as Post))
+        callback(posts)
+      })
+    } catch (error) {
+      console.error('Error subscribing to pending posts:', error)
+      return () => {}
+    }
+  },
+
+  /**
+   * Legacy: Obtener feed social (posts validados) - one-time
    */
   async getFeedSocial(limitNum = 20): Promise<Post[]> {
     try {
@@ -42,7 +123,7 @@ export const postsService = {
   },
 
   /**
-   * Obtener posts por tipo de reto
+   * Legacy: Obtener posts por tipo de reto - one-time
    */
   async getPostsByType(type: RetoTipo, limitNum = 20): Promise<Post[]> {
     try {
@@ -67,7 +148,7 @@ export const postsService = {
   },
 
   /**
-   * Obtener posts pendientes de validación (para líderes)
+   * Legacy: Obtener posts pendientes de validación (para líderes) - one-time
    */
   async getPendingPosts(limitNum = 50): Promise<Post[]> {
     try {

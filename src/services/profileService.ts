@@ -3,6 +3,7 @@ import {
   query,
   where,
   getDocs,
+  onSnapshot,
   getDoc,
   setDoc,
   updateDoc,
@@ -10,6 +11,7 @@ import {
   Timestamp,
   orderBy,
   limit,
+  Unsubscribe,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { User } from '../types'
@@ -146,7 +148,33 @@ export const profileService = {
   },
 
   /**
-   * Obtener leaderboard global
+   * Subscribe to leaderboard in real-time
+   */
+  subscribeLeaderboard(callback: (users: User[]) => void, limitNum = 100): Unsubscribe {
+    try {
+      const q = query(
+        collection(db, 'profiles'),
+        where('activo', '==', true),
+        orderBy('xpTotal', 'desc'),
+        limit(limitNum)
+      )
+      return onSnapshot(q, (snapshot) => {
+        const users = snapshot.docs.map((doc) => ({
+          ...doc.data(),
+          uid: doc.id,
+          createdAt: doc.data().createdAt?.toDate() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+        } as User))
+        callback(users)
+      })
+    } catch (error) {
+      console.error('Error subscribing to leaderboard:', error)
+      return () => {}
+    }
+  },
+
+  /**
+   * Legacy: Get leaderboard global one-time
    */
   async getLeaderboard(limitNum = 100): Promise<User[]> {
     try {
