@@ -20,11 +20,13 @@ import LoginPage from './features/auth/LoginPage'
 
 // LEARNING
 import CartillasPage from './features/learning/CartillasPage'
+import CartillaDetailPage from './features/learning/CartillaDetailPage'
 import QuizzesPage from './features/learning/QuizzesPage'
 
 // LEARNING - Forzar inclusión en bundle (tree-shaking fix)
 if (typeof window === 'undefined') {
   console.log('CartillasPage loaded:', typeof CartillasPage)
+  console.log('CartillaDetailPage loaded:', typeof CartillaDetailPage)
   console.log('QuizzesPage loaded:', typeof QuizzesPage)
 }
 
@@ -95,6 +97,7 @@ export default function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/mi-perfil" element={<ProfilePage />} />
             <Route path="/aprendizaje" element={<CartillasPage />} />
+            <Route path="/aprendizaje/cartillas/:slug" element={<CartillaDetailPage />} />
             <Route path="/aprendizaje/quizzes" element={<QuizzesPage />} />
             <Route path="/notificaciones" element={<NotificationsPage />} />
             <Route path="/servicio" element={<ServicioPage />} />

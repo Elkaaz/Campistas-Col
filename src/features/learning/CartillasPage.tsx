@@ -180,6 +180,13 @@ export default function CartillasPage() {
                 >
                   📥 Descargar PDF
                 </a>
+                <Link
+                  to={`/aprendizaje/cartillas/${cartilla.slug}`}
+                  className="btn-read"
+                  style={{ background: cartilla.colorTema }}
+                >
+                  📖 Leer en App
+                </Link>
               </div>
             </div>
           )
