@@ -1,0 +1,196 @@
+/* ============================================================
+   BADGE CARD — hexagonal gamification badge component
+   ============================================================ */
+
+.badge-card {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+  user-select: none;
+}
+
+/* ── Sizes ── */
+.badge-sm { --px: 48px; }
+.badge-md { --px: 72px; }
+.badge-lg { --px: 96px; }
+
+/* ── Hex shell ── */
+.badge-hex {
+  position: relative;
+  width: var(--px);
+  height: calc(var(--px) * 1.15);
+}
+
+.badge-hex-bg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.15));
+  transition: filter 0.25s ease, transform 0.25s ease;
+}
+
+.badge-card:hover .badge-hex-bg {
+  filter: drop-shadow(0 6px 16px color-mix(in srgb, var(--badge-color, #228B22) 40%, transparent));
+  transform: translateY(-3px);
+}
+
+.badge-locked .badge-hex-bg {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
+}
+
+/* ── Icon overlay ── */
+.badge-icon-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge-icon {
+  font-size: calc(var(--px) * 0.38);
+  line-height: 1;
+  transition: transform 0.25s ease;
+}
+
+.badge-card.badge-earned:hover .badge-icon {
+  transform: scale(1.15);
+}
+
+/* ── Label ── */
+.badge-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  max-width: calc(var(--px) * 1.4);
+  text-align: center;
+}
+
+.badge-name {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.badge-rarity {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Earned animation ── */
+.badge-animate {
+  animation: badge-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badge-pop-in {
+  0%   { transform: scale(0.4) rotate(-15deg); opacity: 0; }
+  60%  { transform: scale(1.12) rotate(3deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* ── Unlock burst ── */
+.badge-unlock-burst {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, rgba(255,215,0,0.5) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: burst 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes burst {
+  0%   { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* ── Tooltip ── */
+.badge-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+  z-index: 200;
+  animation: tt-fade 0.15s ease;
+  pointer-events: none;
+}
+
+@keyframes tt-fade {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* arrow */
+.badge-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: white;
+}
+
+.bt-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px 12px 0 0;
+  color: white;
+}
+
+.bt-icon { font-size: 22px; }
+
+.bt-header strong { display: block; font-size: 14px; }
+
+.bt-rarity {
+  font-size: 11px;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bt-body {
+  padding: 10px 14px 14px;
+}
+
+.bt-body p {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.bt-criterio {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.bt-date {
+  font-size: 12px;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.bt-locked {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .badge-tooltip { width: 180px; }
+}

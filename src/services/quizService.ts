@@ -12,6 +12,7 @@ import {
   setDoc,
 } from 'firebase/firestore'
 import { db } from '../firebase'
+import { badgeService } from './badgeService'
 import type { QuizQuestion } from '../types'
 
 export type QuizResult = {
@@ -300,6 +301,15 @@ export const quizService = {
         },
         { merge: true }
       )
+
+      // If badge earned, store it in userBadges via badgeService
+      if (badgeOtorgado && score >= 70) {
+        await badgeService.grantBadge(uid, badgeOtorgado, 'quiz')
+        // Check completista badge
+        await badgeService.checkCompletistaBadge(uid)
+        // Check level badge with estimated XP
+        await badgeService.checkLevelBadge(uid, xpGanado)
+      }
 
       return docRef.id
     } catch (error) {

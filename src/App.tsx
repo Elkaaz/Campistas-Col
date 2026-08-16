@@ -59,6 +59,7 @@ import DashboardPage from './features/dashboard/DashboardPage'
 
 // PROFILE
 import ProfilePage from './features/profile/ProfilePage'
+import InsigniasPage from './features/profile/InsigniasPage'
 
 // ADMIN
 import AdminPage from './features/admin/AdminPage'
@@ -96,6 +97,7 @@ export default function App() {
             <Route path="/retos/:id/publicar" element={<PublicarRetoPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/mi-perfil" element={<ProfilePage />} />
+            <Route path="/insignias" element={<InsigniasPage />} />
             <Route path="/aprendizaje" element={<CartillasPage />} />
             <Route path="/aprendizaje/cartillas/:slug" element={<CartillaDetailPage />} />
             <Route path="/aprendizaje/quizzes" element={<QuizzesPage />} />
